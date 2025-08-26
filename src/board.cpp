@@ -1,41 +1,64 @@
 #include "board.hpp"
-#include "pawn.hpp"
+#include "piecetypes.hpp"
+#include <iostream>
 
 void Board::init()
-{
-    for(uint8_t i = 0; i < 8; i++){
-        for(uint8_t j = 0; j < 8; j++){
-            board[i][j] = new Piece();
-            board[i][j]->set_pos(i,j);
-            board[i][j]->set_type('x');
+{   
+     Piecetype startpos[4][8] = {
+                             {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook},
+                             {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
+                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                             };
+
+    for(int side = 0; side < 2; side++){
+        for(int row = 0; row < 4; row++){
+            for(int column = 0; column < 8; column++){
+                if(side == 0){
+                    board[row][column] = new Piece(Color::white, startpos[row][column]);
+                }
+                else{
+                    board[7-row][column] = new Piece(Color::black, startpos[row][column]);
+                }
+            }
         }
     }
-    board[0][1] = new Pawn();
-    board[0][1]->set_type('a');
-    board[0][1]->set_pos(0,1);
-    board[0][1]->set_color(Color::white);
-}
-
-std::string Board::testMoves()
-{
-    std::string t = "";
-    for (Move m : board[0][1]->all_moves()){
-        t += 'a' + m.start_square.pos_y;
-        t += '1' + m.start_square.pos_x;
-    
-        t += " to ";
-        t += 'a' + m.end_square.pos_y;
-        t += '1' + m.end_square.pos_x;
-    }
-    return t;
 }
 
 std::string Board::print_board()
 {
     std::string board_string = "";
+    
     for(int i = 7; i >= 0; i--){
         for(int j = 0; j < 8; j++){
-            board_string += board[i][j]->type;
+            char offset = 0;
+            if(board[i][j]->color == Color::black){
+                offset = ('a' - 'A');
+            }
+            switch(board[i][j]->type){
+                case Piecetype::pawn:
+                    board_string += 'p' - offset;
+                break;
+                case Piecetype::knight:
+                    board_string += 'n' - offset;
+                break;
+                case Piecetype::bishop:
+                    board_string += 'b' - offset;
+                break;
+                case Piecetype::rook:
+                    board_string += 'r' - offset;
+                break;
+                case Piecetype::queen:
+                    board_string += 'q' - offset;
+                break;
+                case Piecetype::king:
+                    board_string += 'k' - offset;
+                break;
+                default:
+                    board_string += '_';
+                break;
+
+            };
         }
         board_string += "\n";
     }
