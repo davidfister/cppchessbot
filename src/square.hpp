@@ -7,9 +7,9 @@ class Square
 {
 public:
     Square();
-    Square(uint8_t x, uint8_t y);
-    uint8_t pos_x;
-    uint8_t pos_y;
+    Square(int x, int y);
+    int pos_x;
+    int pos_y;
 };
 
 #endif

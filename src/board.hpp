@@ -10,6 +10,8 @@
 class Board
 {
     Piece* board[8][8]; //[1][0] = b1
+    Color color_to_move = Color::white;
+    bool is_valid_dest_square(int row, int column, Color color);
 public:
     void init();
     std::list<Move> allMoves();

@@ -4,7 +4,7 @@ Square::Square()
 {
 }
 
-Square::Square(uint8_t x, uint8_t y)
+Square::Square(int x, int y)
 {
     this->pos_x = x;
     this->pos_y = y;
