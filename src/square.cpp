@@ -4,8 +4,8 @@ Square::Square()
 {
 }
 
-Square::Square(int x, int y)
+Square::Square(int row, int column)
 {
-    this->pos_x = x;
-    this->pos_y = y;
+    this->row = row;
+    this->column = column;
 }

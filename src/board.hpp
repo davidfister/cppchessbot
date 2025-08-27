@@ -9,13 +9,14 @@
 
 class Board
 {
-    Piece* board[8][8]; //[1][0] = b1
+    Piece* board[8][8]; //[row]][column]
     Color color_to_move = Color::white;
     bool is_valid_dest_square(int row, int column, Color color);
 public:
     void init();
     std::list<Move> allMoves();
     std::string print_board();
+    std::string do_move(Move move);
 };
 
 #endif

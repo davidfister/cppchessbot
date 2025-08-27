@@ -7,9 +7,9 @@ class Square
 {
 public:
     Square();
-    Square(int x, int y);
-    int pos_x;
-    int pos_y;
+    Square(int row, int column);
+    int row;
+    int column;
 };
 
 #endif

@@ -21,23 +21,30 @@ bool Board::is_valid_dest_square(int row, int column, Color color)
 
 void Board::init()
 {   
-     Piecetype startpos[4][8] = {
-                             {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook},
-                             {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
-                             {Piecetype::none, Piecetype::none, Piecetype::bishop, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
-                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
-                             };
-
-    for(int side = 0; side < 2; side++){
-        for(int row = 0; row < 4; row++){
-            for(int column = 0; column < 8; column++){
-                if(side == 0){
-                    board[row][column] = new Piece(Color::white, startpos[row][column]);
-                }
-                else{
-                    board[7-row][column] = new Piece(Color::black, startpos[row][column]);
-                }
-            }
+     Piecetype start_pieces[8][8] = {
+                            {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook},
+                            {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
+                            {Piecetype::none, Piecetype::none, Piecetype::bishop, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::bishop, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
+                            {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook}
+                            };
+    Color start_colors[8][8] = {
+                            {Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black},
+                            {Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white},
+                            {Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white}
+                            };
+    
+    for(int row = 0; row < 8; row++){
+        for(int column = 0; column < 8; column++){
+            board[7-row][column] = new Piece(start_colors[row][column], start_pieces[row][column]);
         }
     }
 }
@@ -80,6 +87,22 @@ std::string Board::print_board()
         board_string += "\n";
     }
     return board_string;
+}
+std::string Board::do_move(Move move)
+{   
+    std::string move_str = "Doing move: ";
+    move_str += 'a' + move.start_square.column;
+    move_str += '1' + move.start_square.row;
+    move_str += " to ";
+    move_str += 'a' + move.end_square.column;
+    move_str += '1' + move.end_square.row;
+    move_str += "\n";
+    std::cout<<move_str;
+    delete board[move.end_square.row][move.end_square.column];
+    board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
+    board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none);
+    
+    return move_str;
 };
 
 std::list<Move> Board::allMoves(){
@@ -88,7 +111,10 @@ std::list<Move> Board::allMoves(){
         for(int column = 0; column < 8; column++){
             switch (board[row][column]->type)
             {
-            case Piecetype::pawn:
+            //TODO:
+            // - en passsant
+            // - capture
+            case Piecetype::pawn: 
                 if(board[row][column]->color == Color::white){
                     if(is_valid_dest_square(row+1, column, board[row][column]->color)){
                         all_moves.push_back(Move(Square(row,column),Square(row+1,column)));
@@ -98,6 +124,8 @@ std::list<Move> Board::allMoves(){
                     }
                 }
                 break;
+            //TODO:
+            // - fix movement
             case Piecetype::knight:
                 {
                     for(int i = 1; i >= -1; i -= 2){//left/right
@@ -154,8 +182,9 @@ std::list<Move> Board::allMoves(){
                         break;
                     }
                 }
-                }
-                break;
+                
+                }break;
+            
             case Piecetype::rook:
                 {
                 int offset = 1;
@@ -174,7 +203,7 @@ std::list<Move> Board::allMoves(){
                     }
                     if(direction_bottom){
                         if(is_valid_dest_square(row-offset,column, board[row][column]->color)){
-                            all_moves.push_back(Move(Square(row,column),Square(row+offset,column)));
+                            all_moves.push_back(Move(Square(row,column),Square(row-offset,column)));
                         }
                         else{
                             direction_bottom = false;
@@ -200,12 +229,129 @@ std::list<Move> Board::allMoves(){
                         break;
                     }
                 }
-                }
-                break;
+                
+                }break;
             case Piecetype::queen:
-                break;
+                {
+                //just combined bishop and rook
+                int offset = 1;
+                bool direction_top_left = true;
+                bool direction_top_right = true;
+                bool direction_bottom_left = true;
+                bool direction_bottom_right = true;
+                bool direction_top = true;
+                bool direction_bottom = true;
+                bool direction_left = true;
+                bool direction_right = true;
+                for(int offset = 1; offset <= 7; offset++){
+                    if(direction_top_left){
+                        if(is_valid_dest_square(row+offset,column-offset, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row+offset,column-offset)));
+                        }
+                        else{
+                            direction_top_left = false;
+                        }
+                    }
+                    if(direction_top_right){
+                        if(is_valid_dest_square(row+offset,column+offset, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row+offset,column+offset)));
+                        }
+                        else{
+                            direction_top_right = false;
+                        }
+                    }
+                    if(direction_bottom_left){
+                        if(is_valid_dest_square(row-offset,column-offset, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row-offset,column-offset)));
+                        }
+                        else{
+                            direction_bottom_left = false;
+                        }
+                    }
+                    if(direction_bottom_right){
+                        if(is_valid_dest_square(row-offset,column+offset, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row-offset,column+offset)));
+                        }
+                        else{
+                            direction_bottom_right = false;
+                        }
+                    }
+                    if(direction_top){
+                        if(is_valid_dest_square(row+offset,column, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row+offset,column)));
+                        }
+                        else{
+                            direction_top = false;
+                        }
+                    }
+                    if(direction_bottom){
+                        if(is_valid_dest_square(row-offset,column, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row-offset,column)));
+                        }
+                        else{
+                            direction_bottom = false;
+                        }
+                    }
+                    if(direction_left){
+                        if(is_valid_dest_square(row,column-offset, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row,column-offset)));
+                        }
+                        else{
+                            direction_left = false;
+                        }
+                    }
+                    if(direction_right){
+                        if(is_valid_dest_square(row,column+offset, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row,column+offset)));
+                        }
+                        else{
+                            direction_right = false;
+                        }
+                    }
+                    
+                    if(!(direction_bottom_left || direction_bottom_right || direction_top_left || direction_top_right || direction_bottom || direction_top || direction_left || direction_right)){
+                        break;
+                    }
+                }
+
+                }break;
+            //TODO:
+            // - castle
+            // - check
+            // - checkmate
             case Piecetype::king:
-                break;
+                if(is_valid_dest_square(row+1,column-1, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row+1,column-1)));
+                }
+                
+                if(is_valid_dest_square(row+1,column+1, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row+1,column+1)));
+                }
+            
+                if(is_valid_dest_square(row-1,column-1, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row-1,column-1)));
+                }
+            
+                if(is_valid_dest_square(row-1,column+1, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row-1,column+1)));
+                }
+            
+                if(is_valid_dest_square(row+1,column, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row+1,column)));
+                }
+
+                if(is_valid_dest_square(row-1,column, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row-1,column)));
+                }
+        
+                if(is_valid_dest_square(row,column-1, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row,column-1)));
+                }
+                
+                if(is_valid_dest_square(row,column+1, board[row][column]->color)){
+                    all_moves.push_back(Move(Square(row,column),Square(row,column+1)));
+                }
+            
             default:
                 break;
             }
