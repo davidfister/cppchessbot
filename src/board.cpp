@@ -90,19 +90,13 @@ std::string Board::print_board()
 }
 std::string Board::do_move(Move move)
 {   
-    std::string move_str = "Doing move: ";
-    move_str += 'a' + move.start_square.column;
-    move_str += '1' + move.start_square.row;
-    move_str += " to ";
-    move_str += 'a' + move.end_square.column;
-    move_str += '1' + move.end_square.row;
-    move_str += "\n";
-    std::cout<<move_str;
+    std::cout<<"Doing move: ";
+    move.print_move();
     delete board[move.end_square.row][move.end_square.column];
     board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
     board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none);
     
-    return move_str;
+    return "";
 };
 
 std::list<Move> Board::allMoves(){
@@ -127,16 +121,20 @@ std::list<Move> Board::allMoves(){
             //TODO:
             // - fix movement
             case Piecetype::knight:
-                {
+                {std::cout<<"all k moves\n";
                     for(int i = 1; i >= -1; i -= 2){//left/right
                         for(int j = 1; j <= 2; j++){//1 or 2 left/right
                             for(int k = 1; k >= -1; k -= 2){ //up/down
                                 if(is_valid_dest_square(row - i*j, column + k*(3-j),board[row][column]->color)){
-                                    all_moves.push_back(Move(Square(row,column),Square(row - i*j,column + k*(3-j))));
+                                    std::cout <<"i: " << i << " j: "<<j << " k: "<<k<<" row-i*j:"<<row- i*j<<" column + k*(3-j): " << column + k*(3-j)<<std::endl;
+
+                                    Move(Square(row,column),Square(row - i*j, column + k*(3-j))).print_move();
+                                    all_moves.push_front(Move(Square(row,column),Square(row - i*j, column + k*(3-j))));//changepushback
                                 }
                             }
                         }
                     }
+                    std::cout<<"all k moves end\n";
                 }    
             case Piecetype::bishop:
                 {

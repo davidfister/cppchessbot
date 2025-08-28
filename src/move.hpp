@@ -9,6 +9,7 @@ public:
   Move(Square start_square, Square end_square);
   Square start_square;
   Square end_square;
+  void print_move();
 }; 
 
 #endif
