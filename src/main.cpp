@@ -5,21 +5,11 @@ int main(){
     Board board = Board();
     board.init();
     std::cout << board.print_board();
-    std::string all_moves = "";
-    for (Move m : board.allMoves()){
-        all_moves += 'a' + m.start_square.column;
-        all_moves += '1' + m.start_square.row;
-        all_moves += " to ";
-        all_moves += 'a' + m.end_square.column;
-        all_moves += '1' + m.end_square.row;
-        all_moves += "\n";
-    }
-    std::cout << all_moves;
+    
             
             
-    int num_pops = 5;
-
-    while(board.allMoves().size() > 0){
+    int num_pops = 7;
+    for(int i = 0; i < 3 && board.allMoves().size() > 0;i++){//do moves
         std::list<Move> mvs = board.allMoves();
         if(num_pops < mvs.size()-1){
             num_pops++;
@@ -35,6 +25,4 @@ int main(){
         board.do_move(mvs.front());
         std::cout<<board.print_board()<<std::endl;
     }
-
-
 }

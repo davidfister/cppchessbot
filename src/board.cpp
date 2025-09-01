@@ -21,7 +21,7 @@ bool Board::is_valid_dest_square(int row, int column, Color color)
 
 void Board::init()
 {   
-     Piecetype start_pieces[8][8] = {
+    /*Piecetype start_pieces[8][8] = {
                             {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook},
                             {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
                             {Piecetype::none, Piecetype::none, Piecetype::bishop, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
@@ -41,6 +41,29 @@ void Board::init()
                             {Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white},
                             {Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white}
                             };
+    */
+    Piecetype start_pieces[8][8] = {
+                            {Piecetype::knight, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none}
+                            };
+    
+    Color start_colors[8][8] = {
+                            {Color::white, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear}
+                            };
+    
     
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
@@ -90,19 +113,13 @@ std::string Board::print_board()
 }
 std::string Board::do_move(Move move)
 {   
-    std::string move_str = "Doing move: ";
-    move_str += 'a' + move.start_square.column;
-    move_str += '1' + move.start_square.row;
-    move_str += " to ";
-    move_str += 'a' + move.end_square.column;
-    move_str += '1' + move.end_square.row;
-    move_str += "\n";
-    std::cout<<move_str;
+    std::cout<<"Doing move: ";
+    move.print_move();
     delete board[move.end_square.row][move.end_square.column];
     board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
     board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none);
     
-    return move_str;
+    return "";
 };
 
 std::list<Move> Board::allMoves(){
@@ -125,19 +142,19 @@ std::list<Move> Board::allMoves(){
                 }
                 break;
             //TODO:
-            // - fix movement
             case Piecetype::knight:
-                {
-                    for(int i = 1; i >= -1; i -= 2){//left/right
-                        for(int j = 1; j <= 2; j++){//1 or 2 left/right
-                            for(int k = 1; k >= -1; k -= 2){ //up/down
-                                if(is_valid_dest_square(row - i*j, column + k*(3-j),board[row][column]->color)){
-                                    all_moves.push_back(Move(Square(row,column),Square(row - i*j,column + k*(3-j))));
-                                }
+                {   
+                for(int i = 1; i >= -1; i -= 2){//left/right
+                    for(int j = 1; j <= 2; j++){//1 or 2 left/right
+                        for(int k = 1; k >= -1; k -= 2){ //up/down
+                            if(is_valid_dest_square(row - i*j, column + k*(3-j),board[row][column]->color)){
+                                all_moves.push_front(Move(Square(row,column),Square(row - i*j, column + k*(3-j))));//changepushback
                             }
                         }
                     }
-                }    
+                }
+                
+                }break;
             case Piecetype::bishop:
                 {
                 int offset = 1;
@@ -351,6 +368,7 @@ std::list<Move> Board::allMoves(){
                 if(is_valid_dest_square(row,column+1, board[row][column]->color)){
                     all_moves.push_back(Move(Square(row,column),Square(row,column+1)));
                 }
+                break;
             
             default:
                 break;
