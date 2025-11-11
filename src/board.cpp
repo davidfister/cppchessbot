@@ -2,7 +2,24 @@
 #include "piecetypes.hpp"
 #include <iostream>
 
-bool Board::is_valid_dest_square(int row, int column, Color color)
+bool Board::is_valid_dest_square(int row, int column, Color color_of_moving_piece)
+{
+    if(column < 0 || column > 7){
+        return false;
+    }
+    if(row < 0 || row > 7){
+        return false;
+    }
+    if(board[row][column]->type == Piecetype::none){
+        return true;
+    }
+    if(board[row][column]->color == color_of_moving_piece){
+        return false;
+    }
+    return true;
+}
+
+bool Board::is_valid_dest_square_king(int row, int column, Color color)
 {
     if(column < 0 || column > 7){
         return false;
@@ -16,6 +33,7 @@ bool Board::is_valid_dest_square(int row, int column, Color color)
     if(board[row][column]->color == color){
         return false;
     }
+    //if (  reachable & king = 0x0000)
     return true;
 }
 
@@ -89,20 +107,21 @@ std::string Board::print_board()
     }
     return board_string;
 }
-std::string Board::do_move(Move move)
+bool Board::do_move(Move move)
 {   
     std::cout<<"Doing move: ";
     move.print_move();
     delete board[move.end_square.row][move.end_square.column];
     board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
     board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none);
+
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
     else{
         color_to_move = Color::black;
     }
-    return "";
+    return true;
 };
 
 std::list<Move> Board::allMoves(){
@@ -116,13 +135,37 @@ std::list<Move> Board::allMoves(){
             // - capture
             // - different for each side
             case Piecetype::pawn: 
-                if(board[row][column]->color == this->color_to_move){
-                    if(is_valid_dest_square(row+1, column, board[row][column]->color)){
-                        all_moves.push_back(Move(Square(row,column),Square(row+1,column)));
+                if(this->color_to_move == Color::white){
+                    if(board[row][column]->color == this->color_to_move){
+                        if(is_valid_dest_square(row+1, column, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row+1,column)));
+                        }
+                        if(row == 1 && is_valid_dest_square(row+2, column, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row+2,column)));
+                        }
+                        if(is_valid_dest_square(row+1, column+1, board[row][column]->color) && board[row+1][column+1]->type == Piecetype::pawn){
+                            all_moves.push_back(Move(Square(row,column),Square(row+1,column+1))); 
+                        }
+                        if(is_valid_dest_square(row+1, column-1, board[row][column]->color) && board[row+1][column-1]->type == Piecetype::pawn){
+                            all_moves.push_back(Move(Square(row,column),Square(row+1,column-1))); 
+                        }
                     }
-                    if(row == 1 && is_valid_dest_square(row+2, column, board[row][column]->color)){
-                        all_moves.push_back(Move(Square(row,column),Square(row+2,column)));
-                    }
+                }
+                else{
+                    if(board[row][column]->color == this->color_to_move){
+                        if(is_valid_dest_square(row-1, column, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row-1,column)));
+                        }
+                        if(row == 6 && is_valid_dest_square(row-2, column, board[row][column]->color)){
+                            all_moves.push_back(Move(Square(row,column),Square(row-2,column)));
+                        }
+                        if(is_valid_dest_square(row-1, column+1, board[row][column]->color) && board[row-1][column+1]->type == Piecetype::pawn){
+                            all_moves.push_back(Move(Square(row,column),Square(row-1,column+1))); 
+                        }
+                        if(is_valid_dest_square(row-1, column-1, board[row][column]->color) && board[row-1][column-1]->type == Piecetype::pawn){
+                            all_moves.push_back(Move(Square(row,column),Square(row-1,column-1))); 
+                        }
+                    }   
                 }
                 break;
             //TODO:
@@ -140,8 +183,8 @@ std::list<Move> Board::allMoves(){
                     }
                 }
                 
-                
                 }break;
+                
             case Piecetype::bishop:
                 {
                 if(board[row][column]->color == this->color_to_move){
