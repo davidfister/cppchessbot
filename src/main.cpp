@@ -6,23 +6,25 @@ int main(){
     board.init();
     std::cout << board.print_board();
     
-            
-            
-    int num_pops = 7;
-    for(int i = 0; i < 3 && board.allMoves().size() > 0;i++){//do moves
+
+    int num_moves = 100; 
+
+    for(int i = 0; i < num_moves && board.allMoves().size() > 0;i++){//do moves
         std::list<Move> mvs = board.allMoves();
-        if(num_pops < mvs.size()-1){
-            num_pops++;
-        }
-        else{
-            num_pops = 0;
-        }
+        while (mvs.size() > 1)
+        {
+            if(mvs.front().captured_piece == Piecetype::none){
+                mvs.pop_front();
+            }
+            else{
+                mvs.pop_back();
 
-        for(int i = 0; i < num_pops; i++){
-            mvs.pop_front();
+            }
         }
-
+        
         board.do_move(mvs.front());
+        std::cout<< (double)(i/2 + 0.5) << std::endl;
         std::cout<<board.print_board()<<std::endl;
+        std::cout<<"---------"<<std::endl;
     }
 }

@@ -1,10 +1,13 @@
 #include "move.hpp"
 #include <iostream>
 
-Move::Move(Square start_square, Square end_square)
+Move::Move(Square start_square, Square end_square, Color color_moved_piece, Piecetype moved_piece, Piecetype captured_piece)
 {
     this->start_square = start_square;
     this->end_square = end_square;
+    this->color_moved_piece = color_moved_piece;
+    this->moved_piece = moved_piece;
+    this->captured_piece = captured_piece;
 }
 
 void Move::print_move() {

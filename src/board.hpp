@@ -10,16 +10,23 @@
 class Board
 {
     Piece* board[8][8]; //[row]][column]
+    std::list<Piece*> captureStack;
     Color color_to_move = Color::white;
-    bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
-    bool is_valid_dest_square_pawn(int row, int column, Color color);
-    bool is_valid_dest_square_king(int row, int column, Color color);
+
+    Square whiteKingSquare;
+    Square blackKingSquare;
+
+    bool valid_coordinates(int row, int column);
+    bool is_valid_dest_square(Square square, Color color_of_moving_piece);
+    bool is_legal_move(Move move);
+    bool mutex_legal_move_check = false;
 
 public:
     void init();
     std::list<Move> allMoves();
     std::string print_board();
     bool do_move(Move move);
+    bool undo_move(Move move);
 };
 
 #endif

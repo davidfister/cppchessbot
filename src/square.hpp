@@ -10,6 +10,8 @@ public:
     Square(int row, int column);
     int row;
     int column;
+    
+    bool operator==(Square& s);
 };
 
 #endif
