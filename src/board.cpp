@@ -69,12 +69,56 @@ bool Board::is_legal_move(Move move)
     return true;
 }
 
+bool Board::is_legal_nullmove()
+{
+    this->do_nullmove();
+    if(this->color_to_move == Color::black){
+        for(Move m : this->allMoves()){
+            if (m.end_square == whiteKing->square){
+                this->undo_nullmove();
+
+                return false;
+            }
+        }
+    }
+    else{
+        for(Move m : this->allMoves()){
+            if (m.end_square == blackKing->square){
+                this->undo_nullmove();
+
+                return false;
+            }
+        }
+    }
+    this->undo_nullmove();
+
+
+    return true;
+}
+
+bool Board::is_checkmate()
+{
+    if(this->allMoves().size() != 0){
+        return false;
+    }
+    return !is_legal_nullmove();
+}
+
+bool Board::is_draw()
+{
+    if(this->allMoves().size() != 0){
+        return false;
+    }
+    
+    return is_legal_nullmove();
+}
+
 void Board::init()
 {   
     Piecetype start_pieces[8][8] = {
                             {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook},
                             {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
-                            {Piecetype::rook, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
@@ -84,7 +128,7 @@ void Board::init()
     Color start_colors[8][8] = {
                             {Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black},
                             {Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black},
-                            {Color::black, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
@@ -165,6 +209,16 @@ bool Board::do_move(Move move)
 
     return true;
 }
+bool Board::do_nullmove()
+{
+    if(this->color_to_move == Color::black){
+        this->color_to_move = Color::white;
+    }
+    else{
+        color_to_move = Color::black;
+    }
+    return true;
+}
 bool Board::undo_move(Move move)
 {
     if(this->color_to_move == Color::black){
@@ -181,6 +235,16 @@ bool Board::undo_move(Move move)
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
 
+    return true;
+}
+bool Board::undo_nullmove()
+{
+    if(this->color_to_move == Color::black){
+        this->color_to_move = Color::white;
+    }
+    else{
+        color_to_move = Color::black;
+    }
     return true;
 }
 bool Board::test_board_coords()

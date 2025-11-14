@@ -9,16 +9,19 @@
 
 class Board
 {
-    Piece* board[8][8]; //[row]][column]
     std::list<Piece*> captureStack;
-    Color color_to_move = Color::white;
 
     Piece* whiteKing;
     Piece* blackKing;
 
+    bool en_passant_possible;
+    Square en_passant_square;
+
     bool valid_coordinates(int row, int column);
     bool is_valid_dest_square(Square square, Color color_of_moving_piece);
     bool is_legal_move(Move move);
+    bool is_legal_nullmove();
+
     bool mutex_legal_move_check = false;
     bool test_board_coords();
 
@@ -28,7 +31,16 @@ public:
     std::list<Move> allMoves();
     std::string print_board();
     bool do_move(Move move);
+    bool do_nullmove();
     bool undo_move(Move move);
+    bool undo_nullmove();
+
+    bool is_checkmate();
+    bool is_draw();
+
+    Color color_to_move = Color::white;
+    Piece* board[8][8]; //[row]][column]
+
 
 };
 

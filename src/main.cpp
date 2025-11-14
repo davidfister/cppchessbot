@@ -1,28 +1,36 @@
-#include"board.hpp"
+#include "board.hpp"
+#include "engie.hpp"
 #include <iostream>
 
 int main(){
     Board board = Board();
     board.init();
+    Engine engine = Engine();
+    engine.init(&board);  
     std::cout << board.print_board();
     
 
-    int num_moves = 59; 
+    int num_moves = 1; 
 
-    for(int i = 1; i <= num_moves && board.allMoves().size() > 0;i++){//do moves
-        std::list<Move> mvs = board.allMoves();
-        while (mvs.size() > 1)
-        {
-            if(mvs.front().captured_piece == Piecetype::none){
-                mvs.pop_front();
+    for(int i = 1; i <= num_moves; i++){//do moves
+        if(board.allMoves().size() == 0){
+            if(board.is_checkmate()){
+                std::cout << "checkmate" << std::endl;
+                return 0;
             }
-            else{
-                mvs.pop_back();
-
+            if(board.is_draw()){
+                std::cout << "draw" << std::endl;
+                return 0;
             }
         }
+        if(i % 2 == 1){
+            board.do_move(engine.find_best_move());
+        }
+        else{
+            board.do_move(board.allMoves().front());
+        }
+
         
-        board.do_move(mvs.front());
         std::cout<< i << std::endl;
         std::cout<<board.print_board()<<std::endl;
         std::cout<<"---------"<<std::endl;
