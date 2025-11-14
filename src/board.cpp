@@ -206,7 +206,7 @@ bool Board::do_move(Move move)
     }
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
-
+    allMovesGenerated = false;
     return true;
 }
 bool Board::do_nullmove()
@@ -217,6 +217,7 @@ bool Board::do_nullmove()
     else{
         color_to_move = Color::black;
     }
+    allMovesGenerated = false;
     return true;
 }
 bool Board::undo_move(Move move)
@@ -234,7 +235,8 @@ bool Board::undo_move(Move move)
 
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
-
+    
+    allMovesGenerated = false;
     return true;
 }
 bool Board::undo_nullmove()
@@ -245,6 +247,8 @@ bool Board::undo_nullmove()
     else{
         color_to_move = Color::black;
     }
+
+    allMovesGenerated = false;
     return true;
 }
 bool Board::test_board_coords()
@@ -269,9 +273,10 @@ bool Board::test_board_coords()
 };
 
 std::list<Move> Board::allMoves(){
-
-    std::list<Move> all_moves{}; //speedup if change to reference based?
-
+    if(this->allMovesGenerated){
+        return this->allMovesList;
+    }
+    this->allMovesList.clear();
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
             switch (board[row][column]->type)
@@ -329,7 +334,7 @@ std::list<Move> Board::allMoves(){
                     Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        all_moves.push_back(m);
+                        allMovesList.push_back(m);
                     }
                 }
 
@@ -359,7 +364,7 @@ std::list<Move> Board::allMoves(){
                     Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        all_moves.push_back(m);
+                        allMovesList.push_back(m);
                     }
                 }
                 
@@ -426,7 +431,7 @@ std::list<Move> Board::allMoves(){
                     Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        all_moves.push_back(m);
+                        allMovesList.push_back(m);
                     }
                 }
 
@@ -499,7 +504,7 @@ std::list<Move> Board::allMoves(){
                     Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        all_moves.push_back(m);
+                        allMovesList.push_back(m);
                     }
                 }
 
@@ -612,7 +617,7 @@ std::list<Move> Board::allMoves(){
                     Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        all_moves.push_back(m);
+                        allMovesList.push_back(m);
                     }
                 }
 
@@ -644,7 +649,7 @@ std::list<Move> Board::allMoves(){
                     Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        all_moves.push_back(m);
+                        allMovesList.push_back(m);
                     }
                 }
 
@@ -656,6 +661,6 @@ std::list<Move> Board::allMoves(){
             }
             }   
         }
-
-    return all_moves;
+    this->allMovesGenerated = true;
+    return allMovesList;
 }

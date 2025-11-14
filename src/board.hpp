@@ -11,6 +11,8 @@ class Board
 {
     std::list<Piece*> captureStack;
 
+    bool allMovesGenerated = false;
+    std::list<Move> allMovesList;
     Piece* whiteKing;
     Piece* blackKing;
 

@@ -17,7 +17,7 @@ Move Engine::find_best_move()
 
     for(Move m : mvs){
         board->do_move(m);
-        double eval_m = negamax(2);
+        double eval_m = negamax(2, -1000,1000);
         if(eval_m > best_eval){
             best_move = m;
         }
@@ -27,16 +27,20 @@ Move Engine::find_best_move()
     return best_move;
 }
 
-double Engine::negamax(int depth)
+double Engine::negamax(int depth, double alpha, double beta)
 {
     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
         return this->evaluate();
     }
 
     double eval = -1000;
+
     for (Move m : board->allMoves()){
         board->do_move(m);
-        eval = std::max(eval, -negamax(depth-1));
+        eval = std::max(eval, -negamax(depth-1, -beta, -alpha));
+        if(alpha >= beta){
+            break;
+        }
         board->undo_move(m);
     }
     return eval;
@@ -48,7 +52,7 @@ double Engine::evaluate()
         return 0.0;
     }
     if(board->is_checkmate()){
-        return board->color_to_move == Color::white ? -1000 : 1000;
+        return -1000;
     }
     
     double evaluation = 0;
@@ -89,5 +93,5 @@ double Engine::evaluate()
             }
         }
     }
-    return evaluation;
+    return (board->color_to_move == Color::black) ? -evaluation : evaluation;
 }

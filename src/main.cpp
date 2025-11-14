@@ -10,7 +10,7 @@ int main(){
     std::cout << board.print_board();
     
 
-    int num_moves = 1; 
+    int num_moves = 50; 
 
     for(int i = 1; i <= num_moves; i++){//do moves
         if(board.allMoves().size() == 0){
