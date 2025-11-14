@@ -7,9 +7,9 @@ int main(){
     std::cout << board.print_board();
     
 
-    int num_moves = 100; 
+    int num_moves = 59; 
 
-    for(int i = 0; i < num_moves && board.allMoves().size() > 0;i++){//do moves
+    for(int i = 1; i <= num_moves && board.allMoves().size() > 0;i++){//do moves
         std::list<Move> mvs = board.allMoves();
         while (mvs.size() > 1)
         {
@@ -23,8 +23,8 @@ int main(){
         }
         
         board.do_move(mvs.front());
-        std::cout<< (double)(i/2 + 0.5) << std::endl;
+        std::cout<< i << std::endl;
         std::cout<<board.print_board()<<std::endl;
         std::cout<<"---------"<<std::endl;
-    }
+        }
 }

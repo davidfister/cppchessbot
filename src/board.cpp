@@ -43,16 +43,20 @@ bool Board::is_legal_move(Move move)
 
         if(move.color_moved_piece == Color::white){
             for(Move m : this->allMoves()){
-                if (m.end_square == whiteKingSquare){
+                if (m.end_square == whiteKing->square){
+                    //std::cout <<"Move not possible:\n" << print_board() << m.start_square.row <<" "<<m.start_square.column <<" "<< m.moved_piece << std::endl;
+
                     this->undo_move(move);
+                    mutex_legal_move_check = false;
                     return false;
                 }
             }
         }
         else{
             for(Move m : this->allMoves()){
-                if (m.end_square == blackKingSquare){
+                if (m.end_square == blackKing->square){
                     this->undo_move(move);
+                    mutex_legal_move_check = false;
                     return false;
                 }
             }
@@ -70,7 +74,7 @@ void Board::init()
     Piecetype start_pieces[8][8] = {
                             {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook},
                             {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
-                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::rook, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
@@ -80,7 +84,7 @@ void Board::init()
     Color start_colors[8][8] = {
                             {Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black},
                             {Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black, Color::black},
-                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::black, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
@@ -91,13 +95,13 @@ void Board::init()
 
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
-            board[7-row][column] = new Piece(start_colors[row][column], start_pieces[row][column]);
+            board[7-row][column] = new Piece(start_colors[row][column], start_pieces[row][column], Square(7-row,column));
             if(start_pieces[row][column] == Piecetype::king){
                 if(start_colors[row][column] == Color::white){
-                    whiteKingSquare = Square(row,column);
+                    whiteKing = board[7-row][column];
                 }
                 else{
-                    this->blackKingSquare = Square(row,column);
+                    blackKing = board[7-row][column];
                 }
             }
         }
@@ -148,7 +152,7 @@ bool Board::do_move(Move move)
 {   
     this->captureStack.push_back(board[move.end_square.row][move.end_square.column]);
     board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
-    board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none);
+    board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.start_square.row, move.start_square.column));
 
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
@@ -156,6 +160,9 @@ bool Board::do_move(Move move)
     else{
         color_to_move = Color::black;
     }
+    board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
+    board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
+
     return true;
 }
 bool Board::undo_move(Move move)
@@ -171,6 +178,29 @@ bool Board::undo_move(Move move)
     board[move.end_square.row][move.end_square.column] = this->captureStack.back();
     this->captureStack.pop_back();
 
+    board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
+    board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+
+    return true;
+}
+bool Board::test_board_coords()
+{
+    for(int row = 0; row < 8; row++){
+        for(int column = 0; column < 8; column++){
+            if(!board[row][column]->square.row == row){
+                std::cout << board[row][column]->square.row << std::endl;
+                std::cout << board[row][column]->square.column<< std::endl;
+                std::cout << row<< std::endl;
+                std::cout << column<< std::endl;
+
+
+                return false;
+            }
+            else if (!board[row][column]->square.column == column){
+                return false;
+            }
+        }
+    }
     return true;
 };
 
@@ -192,30 +222,36 @@ std::list<Move> Board::allMoves(){
 
                 if(this->color_to_move == Color::white){
                     if(board[row][column]->color == this->color_to_move){
-                        possibleSquares.push_back(Square(row+1,column));    
-
-                        if(row == 1){
+                        
+                        if(valid_coordinates(row+1, column) && board[row+1][column]->type == Piecetype::none){
+                            possibleSquares.push_back(Square(row+1,column));
+                        }
+                        
+                        if(row == 1 && valid_coordinates(row+2, column) && board[row+1][column]->type == Piecetype::none && board[row+2][column]->type == Piecetype::none){
                             possibleSquares.push_back(Square(row+2,column));
                         }
-                        if(valid_coordinates(row+1, column+1) && board[row+1][column+1]->type == Piecetype::pawn){
+
+                        if(valid_coordinates(row+1, column+1) && board[row+1][column+1]->type != Piecetype::none){
                             possibleSquares.push_back(Square(row+1,column+1));
                         }
-                        if(valid_coordinates(row+1, column-1) && board[row+1][column-1]->type == Piecetype::pawn){
+                        if(valid_coordinates(row+1, column-1) && board[row+1][column-1]->type != Piecetype::none){
                             possibleSquares.push_back(Square(row+1,column-1));
                         }
                     }
                 }
                 else{
                     if(board[row][column]->color == this->color_to_move){
-                        possibleSquares.push_back(Square(row-1,column));    
-
-                        if(row == 6){
+                        if(valid_coordinates(row-1, column) && board[row-1][column]->type == Piecetype::none){
+                            possibleSquares.push_back(Square(row-1,column));
+                        }
+                        
+                        if(row == 6 && valid_coordinates(row-2, column)&& board[row-1][column]->type == Piecetype::none && board[row-2][column]->type == Piecetype::none){
                             possibleSquares.push_back(Square(row-2,column));
                         }
-                        if(valid_coordinates(row-1, column+1) && board[row-1][column+1]->type == Piecetype::pawn){
+                        if(valid_coordinates(row-1, column+1) && board[row-1][column+1]->type != Piecetype::none){
                             possibleSquares.push_back(Square(row-1,column+1));
                         }
-                        if(valid_coordinates(row-1, column-1) && board[row-1][column-1]->type == Piecetype::pawn){
+                        if(valid_coordinates(row-1, column-1) && board[row-1][column-1]->type != Piecetype::none){
                             possibleSquares.push_back(Square(row-1,column-1));
                         }
                     }   

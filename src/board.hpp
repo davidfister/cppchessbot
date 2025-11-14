@@ -13,13 +13,15 @@ class Board
     std::list<Piece*> captureStack;
     Color color_to_move = Color::white;
 
-    Square whiteKingSquare;
-    Square blackKingSquare;
+    Piece* whiteKing;
+    Piece* blackKing;
 
     bool valid_coordinates(int row, int column);
     bool is_valid_dest_square(Square square, Color color_of_moving_piece);
     bool is_legal_move(Move move);
     bool mutex_legal_move_check = false;
+    bool test_board_coords();
+
 
 public:
     void init();
@@ -27,6 +29,7 @@ public:
     std::string print_board();
     bool do_move(Move move);
     bool undo_move(Move move);
+
 };
 
 #endif

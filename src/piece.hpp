@@ -9,9 +9,10 @@
 
 class Piece{
 public:
-    Piece(Color color, Piecetype type);
+    Piece(Color color, Piecetype type, Square square);
     Color color; 
     Piecetype type;
+    Square square;
 };
 
 #endif
