@@ -26,6 +26,5 @@ int main(){
         std::cout<< i << std::endl;
         std::cout<<board.print_board()<<std::endl;
         std::cout<<"---------"<<std::endl;
-        std::cout << board.allMoves().size() << std::endl;
-    }
+        }
 }
