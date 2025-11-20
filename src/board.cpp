@@ -41,22 +41,23 @@ bool Board::is_legal_move(Move move)
         mutex_legal_move_check = true;
         this->do_move(move);
 
+        std::list<Move>* moves = new std::list<Move>;
         if(move.color_moved_piece == Color::white){
-            for(Move m : this->allMoves()){
+            for(Move m : *this->allMoves(moves)){
                 if (m.end_square == whiteKing->square){
-                    //std::cout <<"Move not possible:\n" << print_board() << m.start_square.row <<" "<<m.start_square.column <<" "<< m.moved_piece << std::endl;
-
                     this->undo_move(move);
                     mutex_legal_move_check = false;
+                    delete moves;
                     return false;
                 }
             }
         }
         else{
-            for(Move m : this->allMoves()){
+            for(Move m : *this->allMoves(moves)){
                 if (m.end_square == blackKing->square){
                     this->undo_move(move);
                     mutex_legal_move_check = false;
+                    delete moves;
                     return false;
                 }
             }
@@ -64,6 +65,8 @@ bool Board::is_legal_move(Move move)
 
         this->undo_move(move);
         mutex_legal_move_check = false;
+        delete moves;
+
     }
 
     return true;
@@ -72,44 +75,53 @@ bool Board::is_legal_move(Move move)
 bool Board::is_legal_nullmove()
 {
     this->do_nullmove();
+    std::list<Move>* moves = new std::list<Move>;
+
     if(this->color_to_move == Color::black){
-        for(Move m : this->allMoves()){
+        for(Move m : *this->allMoves(moves)){
             if (m.end_square == whiteKing->square){
                 this->undo_nullmove();
-
+                delete moves;               
                 return false;
             }
         }
     }
     else{
-        for(Move m : this->allMoves()){
+        for(Move m : *this->allMoves(moves)){
             if (m.end_square == blackKing->square){
                 this->undo_nullmove();
-
+                delete moves;
                 return false;
             }
         }
     }
     this->undo_nullmove();
 
-
+    delete moves;
     return true;
 }
 
 bool Board::is_checkmate()
 {
-    if(this->allMoves().size() != 0){
+    std::list<Move>* moves = new std::list<Move>;
+
+    if(this->allMoves(moves)->size() != 0){
+        delete moves;
         return false;
     }
+    delete moves;
     return !is_legal_nullmove();
 }
 
 bool Board::is_draw()
 {
-    if(this->allMoves().size() != 0){
+    std::list<Move>* moves = new std::list<Move>;
+
+    if(this->allMoves(moves)->size() != 0){
+        delete moves;
         return false;
     }
-    
+    delete moves;
     return is_legal_nullmove();
 }
 
@@ -136,12 +148,35 @@ void Board::init()
                             {Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white, Color::white}
                             };
 
+    Piecetype simple_start_pieces[8][8] = {
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::king, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::queen, Piecetype::king, Piecetype::none, Piecetype::none, Piecetype::none}
+                            };
+    Color simple_start_colors[8][8] = {
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::black, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
+                            {Color::clear, Color::clear, Color::clear, Color::white, Color::white, Color::clear, Color::clear, Color::clear}
+                            };
+
+
+
 
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
-            board[7-row][column] = new Piece(start_colors[row][column], start_pieces[row][column], Square(7-row,column));
-            if(start_pieces[row][column] == Piecetype::king){
-                if(start_colors[row][column] == Color::white){
+            board[7-row][column] = new Piece(simple_start_colors[row][column], simple_start_pieces[row][column], Square(7-row,column));
+            if(simple_start_pieces[row][column] == Piecetype::king){
+                if(simple_start_colors[row][column] == Color::white){
                     whiteKing = board[7-row][column];
                 }
                 else{
@@ -202,11 +237,13 @@ bool Board::do_move(Move move)
         this->color_to_move = Color::white;
     }
     else{
-        color_to_move = Color::black;
+        this->color_to_move = Color::black;
     }
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
-    allMovesGenerated = false;
+    
+    this->allMovesGenerated = false;
+
     return true;
 }
 bool Board::do_nullmove()
@@ -215,9 +252,11 @@ bool Board::do_nullmove()
         this->color_to_move = Color::white;
     }
     else{
-        color_to_move = Color::black;
+        this->color_to_move = Color::black;
     }
-    allMovesGenerated = false;
+
+    this->allMovesGenerated = false;
+
     return true;
 }
 bool Board::undo_move(Move move)
@@ -226,7 +265,7 @@ bool Board::undo_move(Move move)
         this->color_to_move = Color::white;
     }
     else{
-        color_to_move = Color::black;
+        this->color_to_move = Color::black;
     }
     delete board[move.start_square.row][move.start_square.column];
     board[move.start_square.row][move.start_square.column] = board[move.end_square.row][move.end_square.column];
@@ -236,7 +275,8 @@ bool Board::undo_move(Move move)
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
     
-    allMovesGenerated = false;
+    this->allMovesGenerated = false;
+
     return true;
 }
 bool Board::undo_nullmove()
@@ -245,10 +285,11 @@ bool Board::undo_nullmove()
         this->color_to_move = Color::white;
     }
     else{
-        color_to_move = Color::black;
+        this->color_to_move = Color::black;
     }
+  
+    this->allMovesGenerated = false;
 
-    allMovesGenerated = false;
     return true;
 }
 bool Board::test_board_coords()
@@ -261,7 +302,6 @@ bool Board::test_board_coords()
                 std::cout << row<< std::endl;
                 std::cout << column<< std::endl;
 
-
                 return false;
             }
             else if (!board[row][column]->square.column == column){
@@ -272,11 +312,11 @@ bool Board::test_board_coords()
     return true;
 };
 
-std::list<Move> Board::allMoves(){
-    if(this->allMovesGenerated){
-        return this->allMovesList;
-    }
-    this->allMovesList.clear();
+std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
+    benchmark_num_allMoves_calls++;
+
+
+    allMovesList->clear();
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
             switch (board[row][column]->type)
@@ -331,10 +371,10 @@ std::list<Move> Board::allMoves(){
                     if(!valid_coordinates(s.row,s.column)){
                         continue;
                     }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
+                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        allMovesList.push_back(m);
+                        allMovesList->push_back(m);
                     }
                 }
 
@@ -361,10 +401,10 @@ std::list<Move> Board::allMoves(){
                     if(!valid_coordinates(s.row,s.column)){
                         continue;
                     }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
+                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        allMovesList.push_back(m);
+                        allMovesList->push_back(m);
                     }
                 }
                 
@@ -428,10 +468,10 @@ std::list<Move> Board::allMoves(){
                     if(!valid_coordinates(s.row,s.column)){
                         continue;
                     }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
+                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        allMovesList.push_back(m);
+                        allMovesList->push_back(m);
                     }
                 }
 
@@ -501,10 +541,10 @@ std::list<Move> Board::allMoves(){
                     if(!valid_coordinates(s.row,s.column)){
                         continue;
                     }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
+                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        allMovesList.push_back(m);
+                        allMovesList->push_back(m);
                     }
                 }
 
@@ -614,10 +654,10 @@ std::list<Move> Board::allMoves(){
                     if(!valid_coordinates(s.row,s.column)){
                         continue;
                     }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
+                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
 
                     if(is_legal_move(m)){
-                        allMovesList.push_back(m);
+                        allMovesList->push_back(m);
                     }
                 }
 
@@ -628,8 +668,10 @@ std::list<Move> Board::allMoves(){
             // - checkmate
             case Piecetype::king:
             {
-                std::list<Square> possibleSquares{};
                 if(board[row][column]->color == this->color_to_move){
+
+                    std::list<Square> possibleSquares{};
+
                     possibleSquares.push_back(Square(row-1,column-1));
                     possibleSquares.push_back(Square(row-1,column));
                     possibleSquares.push_back(Square(row-1,column+1));
@@ -639,17 +681,18 @@ std::list<Move> Board::allMoves(){
                     possibleSquares.push_back(Square(row+1,column));
                     possibleSquares.push_back(Square(row+1,column+1));
 
-                }
+                
 
-                Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[currentSquare.row][currentSquare.column]->type, board[s.row][s.column]->type);
+                    Square currentSquare = Square(row, column);
+                    for (Square  s : possibleSquares){
+                        if(!valid_coordinates(s.row,s.column)){
+                            continue;
+                        }
+                        Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
 
-                    if(is_legal_move(m)){
-                        allMovesList.push_back(m);
+                        if(is_legal_move(m)){
+                            allMovesList->push_back(m);
+                        }
                     }
                 }
 
@@ -661,6 +704,8 @@ std::list<Move> Board::allMoves(){
             }
             }   
         }
-    this->allMovesGenerated = true;
+    
+
+    //this->allMovesGenerated = true;
     return allMovesList;
 }

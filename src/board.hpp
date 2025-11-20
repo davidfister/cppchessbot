@@ -12,7 +12,7 @@ class Board
     std::list<Piece*> captureStack;
 
     bool allMovesGenerated = false;
-    std::list<Move> allMovesList;
+
     Piece* whiteKing;
     Piece* blackKing;
 
@@ -30,7 +30,8 @@ class Board
 
 public:
     void init();
-    std::list<Move> allMoves();
+        
+    std::list<Move>* allMoves(std::list<Move>* allMovesList);
     std::string print_board();
     bool do_move(Move move);
     bool do_nullmove();
@@ -42,7 +43,11 @@ public:
 
     Color color_to_move = Color::white;
     Piece* board[8][8]; //[row]][column]
-
+    
+    //benchmark
+    int benchmark_num_allMoves_calls = 0;
+    int benchmark_num_allMoves_cache = 0;
+    int benchmark_undoMoveAfterDoMove = 0;
 
 };
 

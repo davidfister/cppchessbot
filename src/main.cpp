@@ -1,5 +1,5 @@
 #include "board.hpp"
-#include "engie.hpp"
+#include "engine.hpp"
 #include <iostream>
 
 int main(){
@@ -8,12 +8,12 @@ int main(){
     Engine engine = Engine();
     engine.init(&board);  
     std::cout << board.print_board();
-    
 
-    int num_moves = 50; 
+    int num_moves = 2;
+    int engine_depth = 5; 
 
     for(int i = 1; i <= num_moves; i++){//do moves
-        if(board.allMoves().size() == 0){
+        /*if(board.allMoves().size() == 0){
             if(board.is_checkmate()){
                 std::cout << "checkmate" << std::endl;
                 return 0;
@@ -22,17 +22,28 @@ int main(){
                 std::cout << "draw" << std::endl;
                 return 0;
             }
-        }
-        if(i % 2 == 1){
-            board.do_move(engine.find_best_move());
+        }*/
+        
+        std::cout << board.color_to_move << std::endl;
+        std::cout << (board.color_to_move == Color::white) << std::endl;
+        // std::list<Move>* moves = new std::list<Move>;
+        // for(Move m : *board.allMoves(moves)){
+        //      m.print_move();
+        // }
+        // delete moves;
+        if(board.color_to_move == Color::black){
+            board.do_move(engine.find_best_move_minimax(engine_depth));
         }
         else{
-            board.do_move(board.allMoves().front());
+            board.do_move(engine.find_best_move_minimax(engine_depth));
         }
+      
 
-        
+        std::cout << "allMoves() calls:\t " << board.benchmark_num_allMoves_calls<< "\nallMoves cache Calls:\t " << board.benchmark_num_allMoves_cache << "\nundoMove after doMove:\t " << board.benchmark_undoMoveAfterDoMove <<"\ncutoffs: "<< engine.benchmark_cutoffs<< std::endl;
         std::cout<< i << std::endl;
-        std::cout<<board.print_board()<<std::endl;
-        std::cout<<"---------"<<std::endl;
+
+        std::cout<< "---------"<<std::endl;
+        std::cout<< board.print_board()<<std::endl;
+        std::cout<< "---------"<<std::endl;
         }
 }
