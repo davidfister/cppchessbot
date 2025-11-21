@@ -9,11 +9,11 @@ public:
     Board* board;
     bool init(Board* board);
     double negamax(int depth, double alpha, double beta);
-    double minimax_max(int depth);
-    double minimax_min(int depth);
+    double minimax_max(int depth,double alpha, double beta);
+    double minimax_min(int depth,double alpha, double beta);
 
     double evaluate();
-    double evaluate_minimax();
+    double evaluate_minimax(int depth);
 
     Move find_best_move_negamax(int depth);
     Move find_best_move_minimax(int depth);

@@ -33,14 +33,13 @@ Move Engine::find_best_move_minimax(int depth)
 {
     double eval = board->color_to_move == Color::white ? -1000 : 1000;
     
-
     std::list<Move>* moves = new std::list<Move>;
     Move bestMove = board->allMoves(moves)->front();
 
     for(Move m : *moves){
         board->do_move(m);
         if(board->color_to_move == Color::black){
-            double e = minimax_min(depth-1);
+            double e = minimax_min(depth-1, -1001, 1001);
             if(e > eval){
                 eval = e;
                 bestMove = m;
@@ -48,11 +47,11 @@ Move Engine::find_best_move_minimax(int depth)
             std::cout<< "\nEval move:"<<std::endl;
             m.print_move();
             std::cout << e <<std::endl;
-             std::cout<< "Best move is:"<<std::endl;
+            std::cout<< "Best move is:"<<std::endl;
             bestMove.print_move();
         }
         else{
-            double e = minimax_max(depth-1);
+            double e = minimax_max(depth-1, -1001, 1001);
             if(e < eval){
                 eval = e;
                 bestMove = m;
@@ -90,46 +89,59 @@ Move Engine::find_best_move_minimax(int depth)
 //     return eval;
 // }
 
-double Engine::minimax_max(int depth)
+double Engine::minimax_max(int depth,double alpha, double beta)
 {
     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
-        return this->evaluate_minimax();
+        return this->evaluate_minimax(depth);
     }
 
-    double bestEval = -1000.0;
         
     std::list<Move>* moves = new std::list<Move>;
     for (Move m : *board->allMoves(moves)){
         board->do_move(m);
-        double eval = minimax_min(depth-1);
-        if(eval > bestEval){
-            bestEval = eval;
+        double eval = minimax_min(depth-1, alpha, beta);
+        if(beta < eval){
+            benchmark_cutoffs++;
+            board->undo_move(m);
+            delete moves;
+            return beta;
+        }
+        if(eval > alpha){
+            alpha = eval;
         }
         board->undo_move(m);
     }
     delete moves;
-    return bestEval;
+    return alpha;
 }
 
-double Engine::minimax_min(int depth)
+double Engine::minimax_min(int depth,double alpha, double beta)
 {
     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
-        return this->evaluate_minimax();
+        return this->evaluate_minimax(depth);
     }
 
-    double bestEval = 1000.0;
-
+    double worst_eval = 1000;
     std::list<Move>* moves = new std::list<Move>;
     for (Move m : *board->allMoves(moves)){
         board->do_move(m);
-        double eval = minimax_max(depth-1);
-        if(eval < bestEval){
-            bestEval = eval;
+        
+        double eval = minimax_max(depth-1, alpha, beta);
+        //if(alpha > eval){
+        //    benchmark_cutoffs++;
+        //    board->undo_move(m);
+
+        //     delete moves;
+        //     return alpha;
+        // }
+        if(eval < worst_eval){
+            worst_eval = eval;
         }
+
         board->undo_move(m);
     }
     delete moves;
-    return bestEval;
+    return worst_eval;
 }
 
 double Engine::evaluate()
@@ -179,16 +191,19 @@ double Engine::evaluate()
             }
         }
     }
+
     return (board->color_to_move == Color::black) ? -evaluation : evaluation;
 }
 
-double Engine::evaluate_minimax()
+
+
+double Engine::evaluate_minimax(int depth)
 {
     if(board->is_draw()){
         return 0.0;
     }
     if(board->is_checkmate()){
-        return board->color_to_move == Color::white ? 999 : -999;
+        return board->color_to_move == Color::white ? -900 - depth : 900 + depth;
     }
     
     double evaluation = 0;
@@ -228,18 +243,6 @@ double Engine::evaluate_minimax()
                 break;      
             }
             
-            switch (p->color)
-            {
-            case Color::white:
-                evaluation += row;
-                break;
-            case Color::black:
-                evaluation -= row;
-                break;
-            
-            default:
-                break;
-            }
         }
     }
     return evaluation;

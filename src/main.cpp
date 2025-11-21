@@ -9,28 +9,19 @@ int main(){
     engine.init(&board);  
     std::cout << board.print_board();
 
-    int num_moves = 2;
+    int num_moves = 5;
     int engine_depth = 5; 
 
     for(int i = 1; i <= num_moves; i++){//do moves
-        /*if(board.allMoves().size() == 0){
-            if(board.is_checkmate()){
-                std::cout << "checkmate" << std::endl;
-                return 0;
-            }
-            if(board.is_draw()){
-                std::cout << "draw" << std::endl;
-                return 0;
-            }
-        }*/
+        if(board.is_checkmate()){
+            std::cout << "checkmate" << std::endl;
+            return 0;
+        }
+        if(board.is_draw()){
+            std::cout << "draw" << std::endl;
+            return 0;
+        }
         
-        std::cout << board.color_to_move << std::endl;
-        std::cout << (board.color_to_move == Color::white) << std::endl;
-        // std::list<Move>* moves = new std::list<Move>;
-        // for(Move m : *board.allMoves(moves)){
-        //      m.print_move();
-        // }
-        // delete moves;
         if(board.color_to_move == Color::black){
             board.do_move(engine.find_best_move_minimax(engine_depth));
         }

@@ -155,8 +155,8 @@ void Board::init()
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
                             {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
-                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none},
-                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::queen, Piecetype::king, Piecetype::none, Piecetype::none, Piecetype::none}
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::rook},
+                            {Piecetype::none, Piecetype::none, Piecetype::none, Piecetype::queen, Piecetype::king, Piecetype::rook, Piecetype::none, Piecetype::none}
                             };
     Color simple_start_colors[8][8] = {
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::black, Color::clear, Color::clear, Color::clear},
@@ -165,8 +165,8 @@ void Board::init()
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
                             {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
-                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear},
-                            {Color::clear, Color::clear, Color::clear, Color::white, Color::white, Color::clear, Color::clear, Color::clear}
+                            {Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::clear, Color::white},
+                            {Color::clear, Color::clear, Color::clear, Color::white, Color::white, Color::white, Color::clear, Color::clear}
                             };
 
 
