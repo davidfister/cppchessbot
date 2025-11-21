@@ -127,6 +127,8 @@ bool Board::is_draw()
 
 void Board::init()
 {   
+    benchmark_ms = std::chrono::milliseconds(0);
+
     Piecetype start_pieces[8][8] = {
                             {Piecetype::rook, Piecetype::knight, Piecetype::bishop, Piecetype::queen, Piecetype::king, Piecetype::bishop, Piecetype::knight, Piecetype::rook},
                             {Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn, Piecetype::pawn},
@@ -295,6 +297,7 @@ bool Board::undo_nullmove()
 
 
 std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
+    auto t1 = std::chrono::high_resolution_clock::now();
     benchmark_num_allMoves_calls++;
 
 
@@ -620,6 +623,8 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
         }
     
 
-    //this->allMovesGenerated = true;
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto ms_int = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1);
+    this->benchmark_ms += ms_int;
     return allMovesList;
 }

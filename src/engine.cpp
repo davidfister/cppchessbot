@@ -115,7 +115,7 @@ Move Engine::find_best_move_minimax(int depth)
     double alpha = -1500;
     double beta = 1500;
     for(Move m : *moves){
-        m.print_move();
+        //m.print_move();
         board->do_move(m);
         double e;
         if(board->color_to_move == Color::black){
@@ -132,7 +132,7 @@ Move Engine::find_best_move_minimax(int depth)
                 bestMove = m;
             }
         }
-        std::cout << e << std::endl;
+        //std::cout << e << std::endl;
         board->undo_move(m);
 
     }

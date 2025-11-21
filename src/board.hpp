@@ -6,6 +6,8 @@
 
 #include"piece.hpp"
 #include <string>
+#include <chrono>
+
 
 class Board
 {
@@ -46,6 +48,7 @@ public:
     
     //benchmark
     int benchmark_num_allMoves_calls = 0;
+    std::chrono::nanoseconds benchmark_ms;
 
 };
 
