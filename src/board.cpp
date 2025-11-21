@@ -174,9 +174,9 @@ void Board::init()
 
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++){
-            board[7-row][column] = new Piece(simple_start_colors[row][column], simple_start_pieces[row][column], Square(7-row,column));
-            if(simple_start_pieces[row][column] == Piecetype::king){
-                if(simple_start_colors[row][column] == Color::white){
+            board[7-row][column] = new Piece(start_colors[row][column], start_pieces[row][column], Square(7-row,column));
+            if(start_pieces[row][column] == Piecetype::king){
+                if(start_colors[row][column] == Color::white){
                     whiteKing = board[7-row][column];
                 }
                 else{
@@ -292,25 +292,7 @@ bool Board::undo_nullmove()
 
     return true;
 }
-bool Board::test_board_coords()
-{
-    for(int row = 0; row < 8; row++){
-        for(int column = 0; column < 8; column++){
-            if(!board[row][column]->square.row == row){
-                std::cout << board[row][column]->square.row << std::endl;
-                std::cout << board[row][column]->square.column<< std::endl;
-                std::cout << row<< std::endl;
-                std::cout << column<< std::endl;
 
-                return false;
-            }
-            else if (!board[row][column]->square.column == column){
-                return false;
-            }
-        }
-    }
-    return true;
-};
 
 std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
     benchmark_num_allMoves_calls++;
@@ -318,7 +300,12 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
 
     allMovesList->clear();
     for(int row = 0; row < 8; row++){
-        for(int column = 0; column < 8; column++){
+        for(int column = 0; column < 8; column++)
+        {
+
+            std::list<Square> possibleSquares{};
+
+
             switch (board[row][column]->type)
             {
             //TODO:
@@ -327,8 +314,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
 
             case Piecetype::pawn:
             {
-                std::list<Square> possibleSquares{};
-
                 if(this->color_to_move == Color::white){
                     if(board[row][column]->color == this->color_to_move){
                         
@@ -366,26 +351,11 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                     }   
                 }
 
-                Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
-
-                    if(is_legal_move(m)){
-                        allMovesList->push_back(m);
-                    }
-                }
-
             }break;
 
             //TODO:
             case Piecetype::knight:
             {   
-                std::list<Square> possibleSquares{};
-
-
                 if(board[row][column]->color == this->color_to_move){
                     for(int i = 1; i >= -1; i -= 2){//left/right
                         for(int j = 1; j <= 2; j++){//1 or 2 left/right
@@ -396,24 +366,10 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                     }
                 }
                 
-                Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
-
-                    if(is_legal_move(m)){
-                        allMovesList->push_back(m);
-                    }
-                }
-                
             }break;
                 
             case Piecetype::bishop:
             {
-                std::list<Square> possibleSquares{};
-
                 if(board[row][column]->color == this->color_to_move){
                     int offset = 1;
                     bool direction_top_left = true;
@@ -463,24 +419,10 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                     }
                 }
 
-                Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
-
-                    if(is_legal_move(m)){
-                        allMovesList->push_back(m);
-                    }
-                }
-
             }break;
             
             case Piecetype::rook:
-            {              
-                std::list<Square> possibleSquares{};
-                
+            {                              
                 if(board[row][column]->color == this->color_to_move){
 
                     int offset = 1;
@@ -535,27 +477,10 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                         }
                     }
                 }
-
-                Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
-
-                    if(is_legal_move(m)){
-                        allMovesList->push_back(m);
-                    }
-                }
-
-
             }break;
             
             case Piecetype::queen:
             {
-                std::list<Square> possibleSquares{};
-
-
                 if(board[row][column]->color == this->color_to_move){
                     int offset = 1;
                     bool direction_top_left = true;
@@ -649,18 +574,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                         }
                     }
                 }
-                Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
-
-                    if(is_legal_move(m)){
-                        allMovesList->push_back(m);
-                    }
-                }
-
             }break;
             //TODO:
             // - castle
@@ -670,8 +583,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
             {
                 if(board[row][column]->color == this->color_to_move){
 
-                    std::list<Square> possibleSquares{};
-
                     possibleSquares.push_back(Square(row-1,column-1));
                     possibleSquares.push_back(Square(row-1,column));
                     possibleSquares.push_back(Square(row-1,column+1));
@@ -680,20 +591,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                     possibleSquares.push_back(Square(row+1,column-1));
                     possibleSquares.push_back(Square(row+1,column));
                     possibleSquares.push_back(Square(row+1,column+1));
-
-                
-
-                    Square currentSquare = Square(row, column);
-                    for (Square  s : possibleSquares){
-                        if(!valid_coordinates(s.row,s.column)){
-                            continue;
-                        }
-                        Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
-
-                        if(is_legal_move(m)){
-                            allMovesList->push_back(m);
-                        }
-                    }
                 }
 
             }break;
@@ -702,6 +599,23 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                 break;
                 
             }
+
+            Square currentSquare = Square(row, column);
+                for (Square  s : possibleSquares){
+                    if(!valid_coordinates(s.row,s.column)){
+                        continue;
+                    }
+                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
+
+                    if(is_legal_move(m)){
+                        if(m.is_capture == true){
+                            allMovesList->push_front(m);
+                        }
+                        else{
+                            allMovesList->push_back(m);
+                        }
+                    }
+                }
             }   
         }
     

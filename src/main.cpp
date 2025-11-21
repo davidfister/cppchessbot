@@ -7,9 +7,8 @@ int main(){
     board.init();
     Engine engine = Engine();
     engine.init(&board);  
-    std::cout << board.print_board();
 
-    int num_moves = 5;
+    int num_moves = 15;
     int engine_depth = 5; 
 
     for(int i = 1; i <= num_moves; i++){//do moves
@@ -22,19 +21,19 @@ int main(){
             return 0;
         }
         
-        if(board.color_to_move == Color::black){
+        if(board.color_to_move == Color::white){
             board.do_move(engine.find_best_move_minimax(engine_depth));
         }
         else{
-            board.do_move(engine.find_best_move_minimax(engine_depth));
+            board.do_move(engine.find_best_move_minimax(1));
         }
       
 
-        std::cout << "allMoves() calls:\t " << board.benchmark_num_allMoves_calls<< "\nallMoves cache Calls:\t " << board.benchmark_num_allMoves_cache << "\nundoMove after doMove:\t " << board.benchmark_undoMoveAfterDoMove <<"\ncutoffs: "<< engine.benchmark_cutoffs<< std::endl;
-        std::cout<< i << std::endl;
+        std::cout << "\nallMoves() calls:\t " << board.benchmark_num_allMoves_calls  <<"\ncutoffs: "<< engine.benchmark_cutoffs<< std::endl;
+        std::cout<< i << " " << !board.color_to_move << std::endl;
 
         std::cout<< "---------"<<std::endl;
         std::cout<< board.print_board()<<std::endl;
-        std::cout<< "---------"<<std::endl;
+        std::cout<< "--------- "<<std::endl;
         }
 }

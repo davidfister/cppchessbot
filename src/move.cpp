@@ -8,6 +8,13 @@ Move::Move(Square start_square, Square end_square, Color color_moved_piece, Piec
     this->color_moved_piece = color_moved_piece;
     this->moved_piece = moved_piece;
     this->captured_piece = captured_piece;
+
+    if(captured_piece != Piecetype::none){
+        this->is_capture = true;
+    }
+    else{
+        this->is_capture = false;
+    }
 }
 
 void Move::print_move() {

@@ -46,8 +46,6 @@ public:
     
     //benchmark
     int benchmark_num_allMoves_calls = 0;
-    int benchmark_num_allMoves_cache = 0;
-    int benchmark_undoMoveAfterDoMove = 0;
 
 };
 
