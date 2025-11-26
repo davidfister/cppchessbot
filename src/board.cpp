@@ -35,14 +35,34 @@ bool Board::is_legal_move(Move move)
     if(!is_valid_dest_square(move.end_square, move.color_moved_piece)){        
         return false;
     }
-
+    
+    
 
     if(!mutex_legal_move_check){
         mutex_legal_move_check = true;
         this->do_move(move);
 
         std::list<Move>* moves = new std::list<Move>;
+        Square s = Square();
         if(move.color_moved_piece == Color::white){
+            for(int i = 1; i >= -1; i -= 2){//left/right
+                for(int j = 1; j <= 2; j++){//1 or 2 left/right
+                    for(int k = 1; k >= -1; k -= 2){ //up/down
+                        s.row = whiteKing->square.row -i*j;
+                        s.column = whiteKing->square.column + k*(3-j);
+                        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == knight){
+                            this->undo_move(move);
+                            mutex_legal_move_check = false;
+                            delete moves;
+                            return false;
+                        }
+                    }
+                }
+            }
+
+
+
+
             for(Move m : *this->allMoves(moves)){
                 if (m.end_square == whiteKing->square){
                     this->undo_move(move);
@@ -244,8 +264,8 @@ bool Board::do_move(Move move)
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
     
-    this->allMovesGenerated = false;
 
+    
     return true;
 }
 bool Board::do_nullmove()
@@ -256,8 +276,6 @@ bool Board::do_nullmove()
     else{
         this->color_to_move = Color::black;
     }
-
-    this->allMovesGenerated = false;
 
     return true;
 }
@@ -276,8 +294,6 @@ bool Board::undo_move(Move move)
 
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
-    
-    this->allMovesGenerated = false;
 
     return true;
 }
@@ -290,8 +306,6 @@ bool Board::undo_nullmove()
         this->color_to_move = Color::black;
     }
   
-    this->allMovesGenerated = false;
-
     return true;
 }
 
@@ -305,9 +319,7 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++)
         {
-
             std::list<Square> possibleSquares{};
-
 
             switch (board[row][column]->type)
             {
@@ -319,7 +331,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
             {
                 if(this->color_to_move == Color::white){
                     if(board[row][column]->color == this->color_to_move){
-                        
                         if(valid_coordinates(row+1, column) && board[row+1][column]->type == Piecetype::none){
                             possibleSquares.push_back(Square(row+1,column));
                         }

@@ -21,7 +21,6 @@ void Move::print_move() {
     std::string move_str{};
     move_str += 'a' + this->start_square.column;
     move_str += '1' + this->start_square.row;
-    move_str += " to ";
     move_str += 'a' + this->end_square.column;
     move_str += '1' + this->end_square.row;
     move_str += "\n";

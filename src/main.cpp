@@ -9,8 +9,8 @@ int main(){
     Engine engine = Engine();
     engine.init(&board);  
 
-    int num_moves = 15;
-    int engine_depth = 2; 
+    int num_moves = 4;
+    int engine_depth = 3; 
 
 
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -28,7 +28,7 @@ int main(){
             board.do_move(engine.find_best_move_minimax(engine_depth));
         }
         else{
-            board.do_move(engine.find_best_move_minimax(1));
+            board.do_move(engine.find_best_move_minimax(engine_depth));
         }
       
 
@@ -36,7 +36,7 @@ int main(){
         //std::cout<< i << " " << !board.color_to_move << std::endl;
 
         // std::cout<< "---------"<<std::endl;
-        // std::cout<< board.print_board()<<std::endl;
+        std::cout<< board.print_board()<<std::endl;
         // std::cout<< "--------- "<<std::endl;
     }
     auto t2 = std::chrono::high_resolution_clock::now();
