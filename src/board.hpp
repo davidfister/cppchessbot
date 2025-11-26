@@ -6,12 +6,12 @@
 
 #include"piece.hpp"
 #include <string>
+#include <chrono>
+
 
 class Board
 {
     std::list<Piece*> captureStack;
-
-    bool allMovesGenerated = false;
 
     Piece* whiteKing;
     Piece* blackKing;
@@ -25,8 +25,6 @@ class Board
     bool is_legal_nullmove();
 
     bool mutex_legal_move_check = false;
-    bool test_board_coords();
-
 
 public:
     void init();
@@ -46,6 +44,7 @@ public:
     
     //benchmark
     int benchmark_num_allMoves_calls = 0;
+    std::chrono::nanoseconds benchmark_ms;
 
 };
 
