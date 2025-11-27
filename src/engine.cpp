@@ -132,7 +132,6 @@ Move Engine::find_best_move_minimax(int depth)
             }
         }
         board->undo_move(m);
-
     }
     delete moves;
     return bestMove;
@@ -233,7 +232,7 @@ double Engine::evaluate_minimax(int depth)
             }
             case Piecetype::queen:
             {
-                evaluation += p->color == Color::white ? 9.0 : -9.0;
+                evaluation += p->color == Color::white ? 9.0 + row: -(9.0 + 7-row);
                 break;
             }
             default:

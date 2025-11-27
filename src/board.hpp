@@ -41,18 +41,18 @@ public:
     Piece* board[8][8]; //[row]][column]
     
     //benchmark
-    int benchmark_calls_allMoves = 0;
-    int benchmark_calls_do_move = 0;
-    int benchmark_calls_do_nullmove = 0;
-    int benchmark_calls_undo_move = 0;
-    int benchmark_calls_undo_nullmove = 0;
-    int benchmark_calls_is_checkmate = 0;
-    int benchmark_calls_is_draw = 0;
+    long benchmark_calls_allMoves = 0;
+    long benchmark_calls_do_move = 0;
+    long benchmark_calls_do_nullmove = 0;
+    long benchmark_calls_undo_move = 0;
+    long benchmark_calls_undo_nullmove = 0;
+    long benchmark_calls_is_checkmate = 0;
+    long benchmark_calls_is_draw = 0;
 
-    int benchmark_calls_valid_coordinates = 0;
-    int benchmark_calls_is_valid_dest_square = 0;
-    int benchmark_calls_valid_is_legal_move = 0;
-    int benchmark_calls_valid_is_legal_nullmove = 0;
+    long benchmark_calls_valid_coordinates = 0;
+    long benchmark_calls_is_valid_dest_square = 0;
+    long benchmark_calls_valid_is_legal_move = 0;
+    long benchmark_calls_valid_is_legal_nullmove = 0;
 
 
     std::chrono::nanoseconds benchmark_ms;

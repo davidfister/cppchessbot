@@ -100,8 +100,8 @@ bool Board::is_legal_move(Move move)
         if(direction_top_left){
             s.row = currentKing->square.row + offset;
             s.column = currentKing->square.column - offset;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop)){
                     this->undo_move(move);
                     return false;
                 }
@@ -113,8 +113,8 @@ bool Board::is_legal_move(Move move)
         if(direction_top){
             s.row = currentKing->square.row + offset;
             s.column = currentKing->square.column;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
                     this->undo_move(move);
                     return false;
                 }
@@ -126,8 +126,8 @@ bool Board::is_legal_move(Move move)
         if(direction_top_right){
             s.row = currentKing->square.row + offset;
             s.column = currentKing->square.column + offset;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
                     this->undo_move(move);
                     return false;
                 }
@@ -139,8 +139,8 @@ bool Board::is_legal_move(Move move)
         if(direction_right){
             s.row = currentKing->square.row;
             s.column = currentKing->square.column + offset;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
                     this->undo_move(move);
                     return false;
                 }
@@ -152,8 +152,8 @@ bool Board::is_legal_move(Move move)
         if(direction_bottom_right){
             s.row = currentKing->square.row - offset;
             s.column = currentKing->square.column + offset;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop)){
                     this->undo_move(move);
                     return false;
                 }
@@ -165,8 +165,8 @@ bool Board::is_legal_move(Move move)
         if(direction_bottom){
             s.row = currentKing->square.row - offset;
             s.column = currentKing->square.column;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
                     this->undo_move(move);
                     return false;
                 }
@@ -178,8 +178,8 @@ bool Board::is_legal_move(Move move)
         if(direction_bottom_left){
             s.row = currentKing->square.row - offset;
             s.column = currentKing->square.column - offset;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop)){
                     this->undo_move(move);
                     return false;
                 }
@@ -191,8 +191,8 @@ bool Board::is_legal_move(Move move)
         if(direction_left){
             s.row = currentKing->square.row;
             s.column = currentKing->square.column - offset;
-            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
-                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
                     this->undo_move(move);
                     return false;
                 }
@@ -595,7 +595,7 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
             {
 
 
-             case Piecetype::queen:
+            case Piecetype::queen:
             {
                 if(board[row][column]->color == this->color_to_move){
                     int offset = 1;
@@ -749,7 +749,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                     }
                 }
             }break;
-
 //TODO:
             case Piecetype::knight:
             {   
@@ -821,7 +820,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                         }
                     }
                 }
-
             }break;
 
             //TODO:
@@ -895,26 +893,24 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                 
             }
 
-            Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
+            for (Square  s : possibleSquares){
+                if(!valid_coordinates(s.row,s.column)){
+                    continue;
+                }
+                Move m = Move(Square(row, column), s, board[row][column]->color, board[row][column]->type, board[s.row][s.column]->type);
 
-                    if(is_legal_move(m)){
-                        if(m.is_capture == true){
-                            allMovesList->push_front(m);
-                        }
-                        else{
-                            allMovesList->push_back(m);
-                        }
+                if(is_legal_move(m)){
+                    if(m.is_capture == true){
+                        allMovesList->push_front(m);
+                    }
+                    else{
+                        allMovesList->push_back(m);
                     }
                 }
             }   
         }
     
-
+    }
     auto t2 = std::chrono::high_resolution_clock::now();
     auto ms_int = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1);
     this->benchmark_ms += ms_int;
