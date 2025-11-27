@@ -863,6 +863,12 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                 }
 
             }break;
+
+            
+            
+            
+            
+           
             //TODO:
             // - castle
             // - check
