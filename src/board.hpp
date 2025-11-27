@@ -23,9 +23,7 @@ class Board
     bool is_valid_dest_square(Square square, Color color_of_moving_piece);
     bool is_legal_move(Move move);
     bool is_legal_nullmove();
-
-    bool mutex_legal_move_check = false;
-
+    
 public:
     void init();
         
@@ -43,7 +41,20 @@ public:
     Piece* board[8][8]; //[row]][column]
     
     //benchmark
-    int benchmark_num_allMoves_calls = 0;
+    long benchmark_calls_allMoves = 0;
+    long benchmark_calls_do_move = 0;
+    long benchmark_calls_do_nullmove = 0;
+    long benchmark_calls_undo_move = 0;
+    long benchmark_calls_undo_nullmove = 0;
+    long benchmark_calls_is_checkmate = 0;
+    long benchmark_calls_is_draw = 0;
+
+    long benchmark_calls_valid_coordinates = 0;
+    long benchmark_calls_is_valid_dest_square = 0;
+    long benchmark_calls_valid_is_legal_move = 0;
+    long benchmark_calls_valid_is_legal_nullmove = 0;
+
+
     std::chrono::nanoseconds benchmark_ms;
 
 };

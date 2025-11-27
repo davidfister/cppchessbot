@@ -108,14 +108,13 @@ bool Engine::init(Board *board)
 Move Engine::find_best_move_minimax(int depth)
 {
     double eval = board->color_to_move == Color::white ? -10001 : 10001;
-    
+    benchmark_nodes++;
     std::list<Move>* moves = new std::list<Move>;
     Move bestMove = board->allMoves(moves)->front();
 
     double alpha = -1500;
     double beta = 1500;
     for(Move m : *moves){
-        //m.print_move();
         board->do_move(m);
         double e;
         if(board->color_to_move == Color::black){
@@ -132,9 +131,7 @@ Move Engine::find_best_move_minimax(int depth)
                 bestMove = m;
             }
         }
-        //std::cout << e << std::endl;
         board->undo_move(m);
-
     }
     delete moves;
     return bestMove;
@@ -142,6 +139,8 @@ Move Engine::find_best_move_minimax(int depth)
 
 double Engine::minimax_max(int depth,double alpha, double beta)
 {
+    benchmark_nodes++;
+
     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
         return this->evaluate_minimax(depth);
     }
@@ -167,6 +166,7 @@ double Engine::minimax_max(int depth,double alpha, double beta)
 
 double Engine::minimax_min(int depth,double alpha, double beta)
 {
+    benchmark_nodes++;
     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
         return this->evaluate_minimax(depth);
     }
@@ -177,8 +177,8 @@ double Engine::minimax_min(int depth,double alpha, double beta)
         
         double eval = minimax_max(depth-1, alpha, beta);
         if(alpha > eval){
-           benchmark_cutoffs++;
-           board->undo_move(m);
+            benchmark_cutoffs++;
+            board->undo_move(m);
             delete moves;
             return alpha;
         }
@@ -212,12 +212,12 @@ double Engine::evaluate_minimax(int depth)
 
             case Piecetype::pawn:
             {
-                evaluation += p->color == Color::white ? 1.0 + row/10.0: -(1.0 + (7-row)/10.0) ;
+                evaluation += p->color == Color::white ? 1.0 + row: -(1.0 + 7-row) ;
                 break;
             }
             case Piecetype::knight:
             {
-                evaluation += p->color == Color::white ? 3.0 + row/8.0 : -(3.0 + (7-row)/8.0);
+                evaluation += p->color == Color::white ? 3.0 + row : -(3.0 + 7-row);
                 break;
             }
             case Piecetype::bishop:
@@ -227,12 +227,12 @@ double Engine::evaluate_minimax(int depth)
             }
             case Piecetype::rook:
             {
-                evaluation += p->color == Color::white ? 5.0 + row/15.0 : -(3.0 + (7-row)/15.0);
+                evaluation += p->color == Color::white ? 5.0 + row : -(5.0 + 7-row);
                 break;
             }
             case Piecetype::queen:
             {
-                evaluation += p->color == Color::white ? 9.0 : -9.0;
+                evaluation += p->color == Color::white ? 9.0 + row: -(9.0 + 7-row);
                 break;
             }
             default:

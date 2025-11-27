@@ -4,6 +4,7 @@
 
 bool Board::valid_coordinates(int row, int column)
 {
+    benchmark_calls_valid_coordinates++;
     if(column < 0 || column > 7){
         return false;
     }
@@ -15,6 +16,7 @@ bool Board::valid_coordinates(int row, int column)
 
 bool Board::is_valid_dest_square(Square square, Color color_of_moving_piece)
 {    
+    benchmark_calls_is_valid_dest_square++;
     if(!valid_coordinates(square.row, square.column)){
         return false;
     }
@@ -32,97 +34,358 @@ bool Board::is_valid_dest_square(Square square, Color color_of_moving_piece)
 
 bool Board::is_legal_move(Move move)
 {    
+    benchmark_calls_valid_is_legal_move++;
     if(!is_valid_dest_square(move.end_square, move.color_moved_piece)){        
         return false;
     }
-    
-    
+    this->do_move(move);
 
-    if(!mutex_legal_move_check){
-        mutex_legal_move_check = true;
-        this->do_move(move);
-
-        std::list<Move>* moves = new std::list<Move>;
-        Square s = Square();
-        if(move.color_moved_piece == Color::white){
-            for(int i = 1; i >= -1; i -= 2){//left/right
-                for(int j = 1; j <= 2; j++){//1 or 2 left/right
-                    for(int k = 1; k >= -1; k -= 2){ //up/down
-                        s.row = whiteKing->square.row -i*j;
-                        s.column = whiteKing->square.column + k*(3-j);
-                        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == knight){
-                            this->undo_move(move);
-                            mutex_legal_move_check = false;
-                            delete moves;
-                            return false;
-                        }
-                    }
-                }
-            }
-
-
-
-
-            for(Move m : *this->allMoves(moves)){
-                if (m.end_square == whiteKing->square){
-                    this->undo_move(move);
-                    mutex_legal_move_check = false;
-                    delete moves;
-                    return false;
-                }
-            }
+    Square s = Square();
+    Piece* currentKing;
+    if(move.color_moved_piece == Color::white){
+        currentKing = whiteKing;
+        s.row = whiteKing->square.row + 1;
+        s.column = whiteKing->square.column - 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_move(move);
+            return false;
         }
-        else{
-            for(Move m : *this->allMoves(moves)){
-                if (m.end_square == blackKing->square){
-                    this->undo_move(move);
-                    mutex_legal_move_check = false;
-                    delete moves;
-                    return false;
-                }
-            }
-        }
-
-        this->undo_move(move);
-        mutex_legal_move_check = false;
-        delete moves;
-
-    }
-
-    return true;
-}
-
-bool Board::is_legal_nullmove()
-{
-    this->do_nullmove();
-    std::list<Move>* moves = new std::list<Move>;
-
-    if(this->color_to_move == Color::black){
-        for(Move m : *this->allMoves(moves)){
-            if (m.end_square == whiteKing->square){
-                this->undo_nullmove();
-                delete moves;               
-                return false;
-            }
+        s.column = whiteKing->square.column + 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_move(move);
+            return false;
         }
     }
     else{
-        for(Move m : *this->allMoves(moves)){
-            if (m.end_square == blackKing->square){
-                this->undo_nullmove();
-                delete moves;
-                return false;
+        currentKing = blackKing;
+        s.row = blackKing->square.row - 1;
+        s.column = blackKing->square.column - 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_move(move);
+            return false;
+        }
+        s.column = blackKing->square.column + 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_move(move);
+            return false;
+        }
+    }
+
+
+    //Check if Knights
+    for(int i = 1; i >= -1; i -= 2){//left/right
+        for(int j = 1; j <= 2; j++){//1 or 2 left/right
+            for(int k = 1; k >= -1; k -= 2){ //up/down
+                s.row = currentKing->square.row -i*j;
+                s.column = currentKing->square.column + k*(3-j);
+                if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == knight){
+                    this->undo_move(move);
+                    return false;
+                }
             }
         }
     }
-    this->undo_nullmove();
+    
 
-    delete moves;
+    int offset = 1;
+    bool direction_top_left = true;
+    bool direction_top_right = true;
+    bool direction_bottom_left = true;
+    bool direction_bottom_right = true;
+    bool direction_top = true;
+    bool direction_bottom = true;
+    bool direction_left = true;
+    bool direction_right = true;
+    for(int offset = 1; offset <= 7; offset++){
+        if(direction_top_left){
+            s.row = currentKing->square.row + offset;
+            s.column = currentKing->square.column - offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop)){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_top_left = false;
+                }
+            }
+        }
+        if(direction_top){
+            s.row = currentKing->square.row + offset;
+            s.column = currentKing->square.column;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_top = false;
+                }
+            }
+        }
+        if(direction_top_right){
+            s.row = currentKing->square.row + offset;
+            s.column = currentKing->square.column + offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_top_right = false;
+                }
+            }
+        }
+        if(direction_right){
+            s.row = currentKing->square.row;
+            s.column = currentKing->square.column + offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_right = false;
+                }
+            }
+        }
+        if(direction_bottom_right){
+            s.row = currentKing->square.row - offset;
+            s.column = currentKing->square.column + offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop)){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_bottom_right = false;
+                }
+            }
+        }
+        if(direction_bottom){
+            s.row = currentKing->square.row - offset;
+            s.column = currentKing->square.column;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_bottom = false;
+                }
+            }
+        }
+        if(direction_bottom_left){
+            s.row = currentKing->square.row - offset;
+            s.column = currentKing->square.column - offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop)){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_bottom_left = false;
+                }
+            }
+        }
+        if(direction_left){
+            s.row = currentKing->square.row;
+            s.column = currentKing->square.column - offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->color == this->color_to_move && (board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook)){
+                    this->undo_move(move);
+                    return false;
+                }
+                else{
+                    direction_left = false;
+                }
+            }
+        }
+        
+    }   
+    this->undo_move(move);
+    return true;
+
+}
+
+bool Board::is_legal_nullmove() // FIX!!!!!
+{
+    benchmark_calls_valid_is_legal_nullmove++;
+    Square s = Square();
+    Piece* currentKing;
+    this->do_nullmove();
+    if(this->color_to_move == Color::black){
+        currentKing = whiteKing;
+        s.row = whiteKing->square.row + 1;
+        s.column = whiteKing->square.column - 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_nullmove();
+            return false;
+        }
+        s.column = whiteKing->square.column + 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_nullmove();
+            return false;
+        }
+    }
+    else{
+        currentKing = blackKing;
+        s.row = blackKing->square.row - 1;
+        s.column = blackKing->square.column - 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_nullmove();
+            return false;
+        }
+        s.column = blackKing->square.column + 1;
+        if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == Piecetype::pawn){
+            this->undo_nullmove();
+            return false;
+        }
+    }
+
+
+    //Check if Knights
+    for(int i = 1; i >= -1; i -= 2){//left/right
+        for(int j = 1; j <= 2; j++){//1 or 2 left/right
+            for(int k = 1; k >= -1; k -= 2){ //up/down
+                s.row = currentKing->square.row -i*j;
+                s.column = currentKing->square.column + k*(3-j);
+                if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type == knight){
+                    this->undo_nullmove();
+                    return false;
+                }
+            }
+        }
+    }
+    
+
+    int offset = 1;
+    bool direction_top_left = true;
+    bool direction_top_right = true;
+    bool direction_bottom_left = true;
+    bool direction_bottom_right = true;
+    bool direction_top = true;
+    bool direction_bottom = true;
+    bool direction_left = true;
+    bool direction_right = true;
+    for(int offset = 1; offset <= 7; offset++){
+        if(direction_top_left){
+            s.row = currentKing->square.row + offset;
+            s.column = currentKing->square.column - offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_top_left = false;
+                }
+            }
+        }
+        if(direction_top){
+            s.row = currentKing->square.row + offset;
+            s.column = currentKing->square.column;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_top = false;
+                }
+            }
+        }
+        if(direction_top_right){
+            s.row = currentKing->square.row + offset;
+            s.column = currentKing->square.column + offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_top_right = false;
+                }
+            }
+        }
+        if(direction_right){
+            s.row = currentKing->square.row;
+            s.column = currentKing->square.column + offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_right = false;
+                }
+            }
+        }
+        if(direction_bottom_right){
+            s.row = currentKing->square.row - offset;
+            s.column = currentKing->square.column + offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::bishop){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_bottom_right = false;
+                }
+            }
+        }
+        if(direction_bottom){
+            s.row = currentKing->square.row - offset;
+            s.column = currentKing->square.column;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_bottom = false;
+                }
+            }
+        }
+        if(direction_bottom_left){
+            s.row = currentKing->square.row - offset;
+            s.column = currentKing->square.column - offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_bottom_left = false;
+                }
+            }
+        }
+        if(direction_left){
+            s.row = currentKing->square.row;
+            s.column = currentKing->square.column - offset;
+            if(valid_coordinates(s.row,s.column) && board[s.row][s.column]->color == this->color_to_move && board[s.row][s.column]->type != Piecetype::none){
+                if(board[s.row][s.column]->type == Piecetype::queen || board[s.row][s.column]->type == Piecetype::rook){
+                    this->undo_nullmove();
+                    return false;
+                }
+                else{
+                    direction_left = false;
+                }
+            }
+        }
+        
+    }   
+    this->undo_nullmove();
     return true;
 }
 
 bool Board::is_checkmate()
 {
+    benchmark_calls_is_checkmate++;
+    if(is_legal_nullmove()){
+        return false;
+    }
+    
     std::list<Move>* moves = new std::list<Move>;
 
     if(this->allMoves(moves)->size() != 0){
@@ -130,11 +393,13 @@ bool Board::is_checkmate()
         return false;
     }
     delete moves;
-    return !is_legal_nullmove();
+    return true;
 }
 
 bool Board::is_draw()
 {
+    benchmark_calls_is_draw++;
+
     std::list<Move>* moves = new std::list<Move>;
 
     if(this->allMoves(moves)->size() != 0){
@@ -249,8 +514,10 @@ std::string Board::print_board()
     }
     return board_string;
 }
+
 bool Board::do_move(Move move)
 {   
+    benchmark_calls_do_move++;
     this->captureStack.push_back(board[move.end_square.row][move.end_square.column]);
     board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
     board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.start_square.row, move.start_square.column));
@@ -268,8 +535,10 @@ bool Board::do_move(Move move)
     
     return true;
 }
+
 bool Board::do_nullmove()
 {
+    benchmark_calls_do_nullmove++;
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
@@ -279,8 +548,10 @@ bool Board::do_nullmove()
 
     return true;
 }
+
 bool Board::undo_move(Move move)
 {
+    benchmark_calls_undo_move++;
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
@@ -297,8 +568,10 @@ bool Board::undo_move(Move move)
 
     return true;
 }
+
 bool Board::undo_nullmove()
 {
+    benchmark_calls_undo_nullmove++;
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
@@ -309,13 +582,10 @@ bool Board::undo_nullmove()
     return true;
 }
 
-
 std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
     auto t1 = std::chrono::high_resolution_clock::now();
-    benchmark_num_allMoves_calls++;
+    benchmark_calls_allMoves++;
 
-
-    allMovesList->clear();
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++)
         {
@@ -323,176 +593,8 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
 
             switch (board[row][column]->type)
             {
-            //TODO:
-            // - en passsant
-            // - capture
 
-            case Piecetype::pawn:
-            {
-                if(this->color_to_move == Color::white){
-                    if(board[row][column]->color == this->color_to_move){
-                        if(valid_coordinates(row+1, column) && board[row+1][column]->type == Piecetype::none){
-                            possibleSquares.push_back(Square(row+1,column));
-                        }
-                        
-                        if(row == 1 && valid_coordinates(row+2, column) && board[row+1][column]->type == Piecetype::none && board[row+2][column]->type == Piecetype::none){
-                            possibleSquares.push_back(Square(row+2,column));
-                        }
 
-                        if(valid_coordinates(row+1, column+1) && board[row+1][column+1]->type != Piecetype::none){
-                            possibleSquares.push_back(Square(row+1,column+1));
-                        }
-                        if(valid_coordinates(row+1, column-1) && board[row+1][column-1]->type != Piecetype::none){
-                            possibleSquares.push_back(Square(row+1,column-1));
-                        }
-                    }
-                }
-                else{
-                    if(board[row][column]->color == this->color_to_move){
-                        if(valid_coordinates(row-1, column) && board[row-1][column]->type == Piecetype::none){
-                            possibleSquares.push_back(Square(row-1,column));
-                        }
-                        
-                        if(row == 6 && valid_coordinates(row-2, column)&& board[row-1][column]->type == Piecetype::none && board[row-2][column]->type == Piecetype::none){
-                            possibleSquares.push_back(Square(row-2,column));
-                        }
-                        if(valid_coordinates(row-1, column+1) && board[row-1][column+1]->type != Piecetype::none){
-                            possibleSquares.push_back(Square(row-1,column+1));
-                        }
-                        if(valid_coordinates(row-1, column-1) && board[row-1][column-1]->type != Piecetype::none){
-                            possibleSquares.push_back(Square(row-1,column-1));
-                        }
-                    }   
-                }
-
-            }break;
-
-            //TODO:
-            case Piecetype::knight:
-            {   
-                if(board[row][column]->color == this->color_to_move){
-                    for(int i = 1; i >= -1; i -= 2){//left/right
-                        for(int j = 1; j <= 2; j++){//1 or 2 left/right
-                            for(int k = 1; k >= -1; k -= 2){ //up/down
-                                possibleSquares.push_back(Square(row - i*j, column + k*(3-j)));
-                            }
-                        }
-                    }
-                }
-                
-            }break;
-                
-            case Piecetype::bishop:
-            {
-                if(board[row][column]->color == this->color_to_move){
-                    int offset = 1;
-                    bool direction_top_left = true;
-                    bool direction_top_right = true;
-                    bool direction_bottom_left = true;
-                    bool direction_bottom_right = true;
-                    for(int offset = 1; offset <= 7; offset++){
-                        if(direction_top_left){
-                            if(valid_coordinates(row+offset, column-offset) && board[row+offset][column-offset]->color == Color::clear){
-                                possibleSquares.push_back(Square(row+offset,column-offset));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row+offset,column-offset));
-                                direction_top_left = false;
-                            }
-                        }
-                        if(direction_top_right){
-                            if(valid_coordinates(row+offset, column+offset) && board[row+offset][column+offset]->color == Color::clear){
-                                possibleSquares.push_back(Square(row+offset,column+offset));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row+offset,column+offset));
-                                direction_top_right = false;
-                            }
-                        }
-                        if(direction_bottom_left){
-                            if(valid_coordinates(row-offset, column-offset) && board[row-offset][column-offset]->color == Color::clear){
-                                possibleSquares.push_back(Square(row-offset,column-offset));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row-offset,column-offset));
-                                direction_bottom_left = false;
-                            }
-                        }
-                        if(direction_bottom_right){
-                            if(valid_coordinates(row-offset, column+offset) && board[row-offset][column+offset]->color == Color::clear){
-                                possibleSquares.push_back(Square(row-offset,column+offset));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row-offset,column+offset));
-                                direction_bottom_right = false;
-                            }
-                        }
-                        if(!(direction_bottom_left || direction_bottom_right || direction_top_left || direction_top_right)){
-                            break;
-                        }
-                    }
-                }
-
-            }break;
-            
-            case Piecetype::rook:
-            {                              
-                if(board[row][column]->color == this->color_to_move){
-
-                    int offset = 1;
-                    bool direction_top = true;
-                    bool direction_bottom = true;
-                    bool direction_left = true;
-                    bool direction_right = true;
-
-                    for(int offset = 1; offset <= 7; offset++){
-                        if(direction_top){
-                            if(valid_coordinates(row+offset, column) && board[row+offset][column]->color == Color::clear){
-                                possibleSquares.push_back(Square(row+offset,column));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row+offset,column));
-                                direction_top = false;
-                            }
-
-                        }
-                        if(direction_bottom){
-                            if(valid_coordinates(row-offset, column) && board[row-offset][column]->color == Color::clear){
-                                possibleSquares.push_back(Square(row-offset,column));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row-offset,column));
-                                direction_bottom = false;
-                            }
-
-                        }
-                        if(direction_left){
-                            if(valid_coordinates(row, column-offset) && board[row][column-offset]->color == Color::clear){
-                                possibleSquares.push_back(Square(row,column-offset));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row,column-offset));
-                                direction_left = false;
-                            }
-
-                        }
-                        if(direction_right){
-                            if(valid_coordinates(row, column+offset) && board[row][column+offset]->color == Color::clear){
-                                possibleSquares.push_back(Square(row,column+offset));
-                            }
-                            else{
-                                possibleSquares.push_back(Square(row,column+offset));
-                                direction_right = false;
-                            }
-                        }
-                        
-                        if(!(direction_bottom || direction_top || direction_left || direction_right)){
-                            break;
-                        }
-                    }
-                }
-            }break;
-            
             case Piecetype::queen:
             {
                 if(board[row][column]->color == this->color_to_move){
@@ -588,6 +690,178 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                         }
                     }
                 }
+            } break;
+
+            case Piecetype::rook:
+            {                              
+                if(board[row][column]->color == this->color_to_move){
+
+                    int offset = 1;
+                    bool direction_top = true;
+                    bool direction_bottom = true;
+                    bool direction_left = true;
+                    bool direction_right = true;
+
+                    for(int offset = 1; offset <= 7; offset++){
+                        if(direction_top){
+                            if(valid_coordinates(row+offset, column) && board[row+offset][column]->color == Color::clear){
+                                possibleSquares.push_back(Square(row+offset,column));
+                            }
+                            else{
+                                possibleSquares.push_back(Square(row+offset,column));
+                                direction_top = false;
+                            }
+
+                        }
+                        if(direction_bottom){
+                            if(valid_coordinates(row-offset, column) && board[row-offset][column]->color == Color::clear){
+                                possibleSquares.push_back(Square(row-offset,column));
+                            }
+                            else{
+                                possibleSquares.push_back(Square(row-offset,column));
+                                direction_bottom = false;
+                            }
+
+                        }
+                        if(direction_left){
+                            if(valid_coordinates(row, column-offset) && board[row][column-offset]->color == Color::clear){
+                                possibleSquares.push_back(Square(row,column-offset));
+                            }
+                            else{
+                                possibleSquares.push_back(Square(row,column-offset));
+                                direction_left = false;
+                            }
+
+                        }
+                        if(direction_right){
+                            if(valid_coordinates(row, column+offset) && board[row][column+offset]->color == Color::clear){
+                                possibleSquares.push_back(Square(row,column+offset));
+                            }
+                            else{
+                                possibleSquares.push_back(Square(row,column+offset));
+                                direction_right = false;
+                            }
+                        }
+                        
+                        if(!(direction_bottom || direction_top || direction_left || direction_right)){
+                            break;
+                        }
+                    }
+                }
+            }break;
+//TODO:
+            case Piecetype::knight:
+            {   
+                if(board[row][column]->color == this->color_to_move){
+                    for(int i = 1; i >= -1; i -= 2){//left/right
+                        for(int j = 1; j <= 2; j++){//1 or 2 left/right
+                            for(int k = 1; k >= -1; k -= 2){ //up/down
+                                if(valid_coordinates(row - i*j, column + k*(3-j))){
+                                    possibleSquares.push_back(Square(row - i*j, column + k*(3-j)));
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            }break;
+                
+            case Piecetype::bishop:
+            {
+                if(board[row][column]->color == this->color_to_move){
+                    int offset = 1;
+                    bool direction_top_left = true;
+                    bool direction_top_right = true;
+                    bool direction_bottom_left = true;
+                    bool direction_bottom_right = true;
+                    for(int offset = 1; offset <= 7; offset++){
+                        if(direction_top_left){
+                            if(valid_coordinates(row+offset, column-offset) && board[row+offset][column-offset]->color == Color::clear){
+                                possibleSquares.push_back(Square(row+offset,column-offset));
+                            }
+                            else{
+                                if(valid_coordinates(row+offset, column-offset)){
+                                    possibleSquares.push_back(Square(row+offset,column-offset));
+                                }
+                                direction_top_left = false;
+                            }
+                        }
+                        if(direction_top_right){
+                            if(valid_coordinates(row+offset, column+offset) && board[row+offset][column+offset]->color == Color::clear){
+                                possibleSquares.push_back(Square(row+offset,column+offset));
+                            }
+                            else{
+                                if(valid_coordinates(row+offset, column+offset)){
+                                    possibleSquares.push_back(Square(row+offset,column-offset));
+                                }
+                                direction_top_right = false;
+                            }
+                        }
+                        if(direction_bottom_left){
+                            if(valid_coordinates(row-offset, column-offset) && board[row-offset][column-offset]->color == Color::clear){
+                                possibleSquares.push_back(Square(row-offset,column-offset));
+                            }
+                            else{
+                                possibleSquares.push_back(Square(row-offset,column-offset));
+                                direction_bottom_left = false;
+                            }
+                        }
+                        if(direction_bottom_right){
+                            if(valid_coordinates(row-offset, column+offset) && board[row-offset][column+offset]->color == Color::clear){
+                                possibleSquares.push_back(Square(row-offset,column+offset));
+                            }
+                            else{
+                                possibleSquares.push_back(Square(row-offset,column+offset));
+                                direction_bottom_right = false;
+                            }
+                        }
+                        if(!(direction_bottom_left || direction_bottom_right || direction_top_left || direction_top_right)){
+                            break;
+                        }
+                    }
+                }
+            }break;
+
+            //TODO:
+            // - en passsant
+            case Piecetype::pawn:
+            {
+                if(this->color_to_move == Color::white){
+                    if(board[row][column]->color == this->color_to_move){
+                        if(valid_coordinates(row+1, column) && board[row+1][column]->type == Piecetype::none){
+                            possibleSquares.push_back(Square(row+1,column));
+                        }
+                        
+                        if(row == 1 && valid_coordinates(row+2, column) && board[row+1][column]->type == Piecetype::none && board[row+2][column]->type == Piecetype::none){
+                            possibleSquares.push_back(Square(row+2,column));
+                        }
+
+                        if(valid_coordinates(row+1, column+1) && board[row+1][column+1]->type != Piecetype::none){
+                            possibleSquares.push_back(Square(row+1,column+1));
+                        }
+                        if(valid_coordinates(row+1, column-1) && board[row+1][column-1]->type != Piecetype::none){
+                            possibleSquares.push_back(Square(row+1,column-1));
+                        }
+                    }
+                }
+                else{
+                    if(board[row][column]->color == this->color_to_move){
+                        if(valid_coordinates(row-1, column) && board[row-1][column]->type == Piecetype::none){
+                            possibleSquares.push_back(Square(row-1,column));
+                        }
+                        
+                        if(row == 6 && valid_coordinates(row-2, column)&& board[row-1][column]->type == Piecetype::none && board[row-2][column]->type == Piecetype::none){
+                            possibleSquares.push_back(Square(row-2,column));
+                        }
+                        if(valid_coordinates(row-1, column+1) && board[row-1][column+1]->type != Piecetype::none){
+                            possibleSquares.push_back(Square(row-1,column+1));
+                        }
+                        if(valid_coordinates(row-1, column-1) && board[row-1][column-1]->type != Piecetype::none){
+                            possibleSquares.push_back(Square(row-1,column-1));
+                        }
+                    }   
+                }
+
             }break;
             //TODO:
             // - castle
@@ -596,7 +870,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
             case Piecetype::king:
             {
                 if(board[row][column]->color == this->color_to_move){
-
                     possibleSquares.push_back(Square(row-1,column-1));
                     possibleSquares.push_back(Square(row-1,column));
                     possibleSquares.push_back(Square(row-1,column+1));
@@ -614,26 +887,24 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                 
             }
 
-            Square currentSquare = Square(row, column);
-                for (Square  s : possibleSquares){
-                    if(!valid_coordinates(s.row,s.column)){
-                        continue;
-                    }
-                    Move m = Move(currentSquare, s, this->color_to_move, board[row][column]->type, board[s.row][s.column]->type);
+            for (Square  s : possibleSquares){
+                if(!valid_coordinates(s.row,s.column)){
+                    continue;
+                }
+                Move m = Move(Square(row, column), s, board[row][column]->color, board[row][column]->type, board[s.row][s.column]->type);
 
-                    if(is_legal_move(m)){
-                        if(m.is_capture == true){
-                            allMovesList->push_front(m);
-                        }
-                        else{
-                            allMovesList->push_back(m);
-                        }
+                if(is_legal_move(m)){
+                    if(m.is_capture == true){
+                        allMovesList->push_front(m);
+                    }
+                    else{
+                        allMovesList->push_back(m);
                     }
                 }
             }   
         }
     
-
+    }
     auto t2 = std::chrono::high_resolution_clock::now();
     auto ms_int = std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1);
     this->benchmark_ms += ms_int;
