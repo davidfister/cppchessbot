@@ -9,11 +9,9 @@ int debug(){
     Engine engine = Engine();
     engine.init(&board);  
 
-    int num_moves = 1000;
+    int num_moves = 1;
     int engine_depth = 1; 
     
-    std::string s = "position startpos moves e2e3";
-
     auto t1 = std::chrono::high_resolution_clock::now();
     for(int i = 1; i <= num_moves; i++){//do moves
         if(board.is_checkmate()){
@@ -25,18 +23,8 @@ int debug(){
             return 0;
         }
         
-        if(board.color_to_move == Color::black){
-            board.do_move(engine.find_best_move_minimax(engine_depth));
-        }
-        else{
-            std::cout << s.substr(s.size() - 4) << std::endl;
-            std::string ss = s.substr(s.size() - 4);
-            Square sq = Square(-((int)'1' - ss.at(1)),-((int)'a' - ss.at(0)));
-
-            std::cout << sq.row <<sq.column<<std::endl;
-            Move m = Move(ss, board.color_to_move);
-            board.do_move(m);
-        }
+        board.do_move(engine.find_best_move_minimax(engine_depth));
+     
       
 
         //std::cout << "\nallMoves() calls:\t " << board.benchmark_num_allMoves_calls  <<"\ncutoffs: "<< engine.benchmark_cutoffs<< std::endl;

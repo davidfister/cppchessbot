@@ -86,8 +86,6 @@ bool Board::is_legal_move(Move move)
         }
     }
     
-
-    int offset = 1;
     bool direction_top_left = true;
     bool direction_top_right = true;
     bool direction_bottom_left = true;
@@ -258,8 +256,6 @@ bool Board::is_legal_nullmove() // FIX!!!!!
         }
     }
     
-
-    int offset = 1;
     bool direction_top_left = true;
     bool direction_top_right = true;
     bool direction_bottom_left = true;
@@ -515,6 +511,18 @@ std::string Board::print_board()
     return board_string;
 }
 
+bool Board::do_uci_move(std::string s)
+{
+    Square start_square = Square(-((int)'1' - s.at(1)),-((int)'a' - s.at(0)));
+    Square end_square = Square(-((int)'1' - s.at(3)),-((int)'a' - s.at(2)));
+    
+    
+
+    Move m = Move(start_square, end_square, color_to_move, board[start_square.row][start_square.column]->type, board[end_square.row][end_square.column]->type);
+    this->do_move(m);
+    return true;
+}
+
 bool Board::do_move(Move move)
 {   
     benchmark_calls_do_move++;
@@ -527,6 +535,33 @@ bool Board::do_move(Move move)
     }
     else{
         this->color_to_move = Color::black;
+    }
+    if(move.is_promotion){
+        delete board[move.end_square.row][move.end_square.column];
+        board[move.end_square.row][move.end_square.column] = new Piece(move.color_moved_piece, Piecetype::queen, Square(move.end_square.row, move.end_square.column));
+    }
+    if(move.is_en_passant){
+        if(move.color_moved_piece == Color::white){
+            this->captureStack.push_back(board[move.end_square.row+1][move.end_square.column]);
+            board[move.end_square.row+1 ][move.end_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.end_square.row+1, move.end_square.column));
+        }
+        else{
+            this->captureStack.push_back(board[move.end_square.row-1][move.end_square.column]);
+            board[move.end_square.row-1 ][move.end_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.end_square.row-1, move.end_square.column));
+        
+        }
+    }
+    if(move.is_castle){
+        if(move.end_square.column == 6){
+            Piece* r = board[move.end_square.row][7];
+            board[move.end_square.row][7] = board[move.end_square.row][5];
+            board[move.end_square.row][5] = r;
+        }
+        else{
+            Piece* r = board[move.end_square.row][0];
+            board[move.end_square.row][0] = board[move.end_square.row][3];
+            board[move.end_square.row][3] = r;
+        }
     }
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
@@ -563,6 +598,34 @@ bool Board::undo_move(Move move)
     board[move.end_square.row][move.end_square.column] = this->captureStack.back();
     this->captureStack.pop_back();
 
+    if(move.is_promotion){
+        delete board[move.start_square.row][move.start_square.column];
+        board[move.start_square.row][move.start_square.column] = new Piece(move.color_moved_piece, Piecetype::pawn, Square(move.start_square.row, move.start_square.column));
+    }
+    if(move.is_en_passant){
+        if(move.color_moved_piece == Color::white){
+            delete board[move.end_square.row+1 ][move.end_square.column];
+            board[move.end_square.row+1][move.end_square.column] = this->captureStack.back();
+        }
+        else{
+            delete board[move.end_square.row-1 ][move.end_square.column];
+            board[move.end_square.row-1][move.end_square.column] = this->captureStack.back();        
+        }
+    }
+    if(move.is_castle){
+        if(move.end_square.column == 6){
+            Piece* r = board[move.end_square.row][5];
+            board[move.end_square.row][5] = board[move.end_square.row][7];
+            board[move.end_square.row][7] = r;
+        }
+        else{
+            Piece* r = board[move.end_square.row][3];
+            board[move.end_square.row][3] = board[move.end_square.row][0];
+            board[move.end_square.row][0] = r;
+        }
+    }
+
+
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
 
@@ -598,7 +661,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
             case Piecetype::queen:
             {
                 if(board[row][column]->color == this->color_to_move){
-                    int offset = 1;
                     bool direction_top_left = true;
                     bool direction_top_right = true;
                     bool direction_bottom_left = true;
@@ -695,8 +757,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
             case Piecetype::rook:
             {                              
                 if(board[row][column]->color == this->color_to_move){
-
-                    int offset = 1;
                     bool direction_top = true;
                     bool direction_bottom = true;
                     bool direction_left = true;
@@ -769,7 +829,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
             case Piecetype::bishop:
             {
                 if(board[row][column]->color == this->color_to_move){
-                    int offset = 1;
                     bool direction_top_left = true;
                     bool direction_top_right = true;
                     bool direction_bottom_left = true;
@@ -884,6 +943,8 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                     possibleSquares.push_back(Square(row+1,column-1));
                     possibleSquares.push_back(Square(row+1,column));
                     possibleSquares.push_back(Square(row+1,column+1));
+                    possibleSquares.push_back(Square(row,column+2));
+                    possibleSquares.push_back(Square(row,column-2));
                 }
 
             }break;

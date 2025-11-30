@@ -107,7 +107,6 @@ bool Engine::init(Board *board)
 
 Move Engine::find_best_move_minimax(int depth)
 {
-    double eval = board->color_to_move == Color::white ? -10001 : 10001;
     benchmark_nodes++;
     std::list<Move>* moves = new std::list<Move>;
     Move bestMove = board->allMoves(moves)->front();
@@ -212,12 +211,12 @@ double Engine::evaluate_minimax(int depth)
 
             case Piecetype::pawn:
             {
-                evaluation += p->color == Color::white ? 1.0 + row: -(1.0 + 7-row) ;
+                evaluation += p->color == Color::white ? 1.0 : -(1.0) ;
                 break;
             }
             case Piecetype::knight:
             {
-                evaluation += p->color == Color::white ? 3.0 + row : -(3.0 + 7-row);
+                evaluation += p->color == Color::white ? 3.0 : -(3.0);
                 break;
             }
             case Piecetype::bishop:
@@ -227,12 +226,12 @@ double Engine::evaluate_minimax(int depth)
             }
             case Piecetype::rook:
             {
-                evaluation += p->color == Color::white ? 5.0 + row : -(5.0 + 7-row);
+                evaluation += p->color == Color::white ? 5.0 : -(5.0);
                 break;
             }
             case Piecetype::queen:
             {
-                evaluation += p->color == Color::white ? 9.0 + row: -(9.0 + 7-row);
+                evaluation += p->color == Color::white ? 9.0 : -(9.0);
                 break;
             }
             default:

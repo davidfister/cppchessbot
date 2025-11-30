@@ -29,6 +29,10 @@ public:
         
     std::list<Move>* allMoves(std::list<Move>* allMovesList);
     std::string print_board();
+
+    bool do_uci_move(std::string s);
+
+
     bool do_move(Move move);
     bool do_nullmove();
     bool undo_move(Move move);

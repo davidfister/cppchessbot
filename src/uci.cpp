@@ -32,22 +32,16 @@ int uci(){
         else if(uci_input.substr(0,8) == "position"){
             if(uci_input.substr(9,8) == "startpos"){
                 if(uci_input.size() >22 && uci_input.substr(18,5) == "moves"){
-                    board.do_move(Move(uci_input.substr(uci_input.size() - 4),board.color_to_move));
+                    board.do_uci_move(uci_input.substr(uci_input.size() - 4));
+                    std::cerr << board.print_board() << std::endl;
                 }
             }
         }
         else if (uci_input.substr(0, 2) == "go") {
-            if(board.is_checkmate()){
-                return 0;
-            }
-            if(board.is_draw()){
-                return 0;
-            }
-            
             Move m = engine.find_best_move_minimax(engine_depth);
             board.do_move(m);
             std::cout << "bestmove " <<  m.to_string() << std::endl;
-
+            std::cerr << board.print_board() << std::endl;
         }
 
     
