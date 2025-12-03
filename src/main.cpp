@@ -7,6 +7,6 @@
 
 int main(){
     uci();
-    //debug();
+    //debug(4, 4);
     return 0;
 }

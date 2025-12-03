@@ -21,7 +21,7 @@ Move::Move(Square start_square, Square end_square, Color color_moved_piece, Piec
                     captured_piece = Piecetype::pawn;
                 }
             }
-            else if(end_square.row == 7){
+            if(end_square.row == 7){
                 this->is_promotion = true;
             }
         }
@@ -33,7 +33,7 @@ Move::Move(Square start_square, Square end_square, Color color_moved_piece, Piec
 
                 }
             }
-            else if(end_square.row == 0){
+            if(end_square.row == 0){
                 this->is_promotion = true;
             }
         }
@@ -46,8 +46,8 @@ Move::Move(Square start_square, Square end_square, Color color_moved_piece, Piec
         this->is_capture = false;
     }
     if(moved_piece == Piecetype::king){
-        if(abs(end_square.column - end_square.column) > 1){
-            is_en_passant = true;
+        if(abs(start_square.column - end_square.column) > 1){
+            this->is_castle = true;
         }
     }
 }

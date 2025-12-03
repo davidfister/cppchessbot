@@ -3,17 +3,17 @@
 #include <iostream>
 #include <chrono>
 
-int debug(){
+int debug(int num_moves, int engine_depth){
     Board board = Board();
     board.init();
     Engine engine = Engine();
     engine.init(&board);  
 
-    int num_moves = 1;
-    int engine_depth = 1; 
-    
+
     auto t1 = std::chrono::high_resolution_clock::now();
     for(int i = 1; i <= num_moves; i++){//do moves
+        std::cout << engine.evaluate_minimax(0) <<std::endl;
+        std::cout<< board.print_board()<<std::endl;
         if(board.is_checkmate()){
             std::cout << "checkmate" << std::endl;
             return 0;
@@ -22,9 +22,20 @@ int debug(){
             std::cout << "draw" << std::endl;
             return 0;
         }
-        
-        board.do_move(engine.find_best_move_minimax(engine_depth));
-     
+
+        std::list<Move>* moves = new std::list<Move>;
+
+        for(auto m : *moves){
+            m.print_move();
+        }
+        if(board.color_to_move == Color::white){
+            board.do_move(engine.find_best_move_minimax(2));
+        }
+        else{
+            std::string s;
+            std::cin >> s;
+            board.do_uci_move(s);
+        }
       
 
         //std::cout << "\nallMoves() calls:\t " << board.benchmark_num_allMoves_calls  <<"\ncutoffs: "<< engine.benchmark_cutoffs<< std::endl;
@@ -33,7 +44,7 @@ int debug(){
         // std::cout<< "---------"<<std::endl;
         
         // std::cout<< "--------- "<<std::endl;
-        std::cout<< board.print_board()<<std::endl;
+        
 
     }
     std::cout << engine.benchmark_cutoffs << " " << engine.benchmark_nodes << " " << (double) engine.benchmark_cutoffs/engine.benchmark_nodes << std::endl;

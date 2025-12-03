@@ -6,6 +6,6 @@
 #ifndef DEBUG_HPP
 #define DEBUG_HPP
 
-int debug();
+int debug(int num_moves, int engine_depth);
 
 #endif

@@ -20,7 +20,7 @@ class Board
     Square en_passant_square;
 
     bool valid_coordinates(int row, int column);
-    bool is_valid_dest_square(Square square, Color color_of_moving_piece);
+    bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
     bool is_legal_move(Move move);
     bool is_legal_nullmove();
     
@@ -38,6 +38,7 @@ public:
     bool undo_move(Move move);
     bool undo_nullmove();
 
+    bool is_square_attacked(Square s, Color attackedColor);
     bool is_checkmate();
     bool is_draw();
 

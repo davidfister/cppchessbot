@@ -10,10 +10,7 @@ int uci(){
     Engine engine = Engine();
     engine.init(&board);  
 
-    int engine_depth = 4; 
-    for(int i = 0; i < 10; i++){
-
-    }
+    int engine_depth = 4;
     std::string uci_input;
     
     while (getline(std::cin, uci_input)) {
@@ -41,7 +38,6 @@ int uci(){
             Move m = engine.find_best_move_minimax(engine_depth);
             board.do_move(m);
             std::cout << "bestmove " <<  m.to_string() << std::endl;
-            std::cerr << board.print_board() << std::endl;
         }
 
     

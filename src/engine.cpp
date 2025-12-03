@@ -152,7 +152,7 @@ double Engine::minimax_max(int depth,double alpha, double beta)
             benchmark_cutoffs++;
             board->undo_move(m);
             delete moves;
-            return eval;
+            return beta;
         }
         if(eval > alpha){
             alpha = eval;
@@ -221,7 +221,7 @@ double Engine::evaluate_minimax(int depth)
             }
             case Piecetype::bishop:
             {
-                evaluation += p->color == Color::white ? 3.0 : -3.0;
+                evaluation += p->color == Color::white ? 3.0 : -(3.0);
                 break;
             }
             case Piecetype::rook:
@@ -236,6 +236,12 @@ double Engine::evaluate_minimax(int depth)
             }
             default:
                 break;      
+            }
+            if(p->color == Color::white){
+                 evaluation += row*0.1;
+            }
+            else if(p->color == Color::black){
+                evaluation -= (7-row)*0.1;
             }
         }
     }
