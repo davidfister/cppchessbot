@@ -23,20 +23,30 @@ int debug(int num_moves, int engine_depth){
             return 0;
         }
 
-        std::list<Move>* moves = new std::list<Move>;
+        /*std::list<Move>* moves = new std::list<Move>;
 
         for(auto m : *moves){
             m.print_move();
-        }
-        if(board.color_to_move == Color::white){
-            board.do_move(engine.find_best_move_minimax(2));
+        }*/
+       /*
+        if(board.color_to_move == Color::black){
+            board.do_move(engine.find_best_move_minimax(engine_depth));
         }
         else{
-            std::string s;
-            std::cin >> s;
-            board.do_uci_move(s);
-        }
-      
+            board.do_move(engine.find_best_move_minimax(engine_depth));
+
+            
+        }*/
+        std::string s;
+        std::cin >> s;
+        board.do_uci_move(s);
+                std::cout<< board.color_to_move << !board.color_to_move <<std::endl;
+
+        board.do_move(engine.find_best_move_minimax(1));
+
+        std::cout<< board.color_to_move << !board.color_to_move <<std::endl;
+
+
 
         //std::cout << "\nallMoves() calls:\t " << board.benchmark_num_allMoves_calls  <<"\ncutoffs: "<< engine.benchmark_cutoffs<< std::endl;
         //std::cout<< i << " " << !board.color_to_move << std::endl;

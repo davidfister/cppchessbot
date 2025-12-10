@@ -12,9 +12,17 @@
 class Board
 {
     std::list<Piece*> captureStack;
-
+ 
     Piece* whiteKing;
     Piece* blackKing;
+
+    int ply = 0;
+    int ply_white_king_moved = -1;
+    int ply_black_king_moved = -1;
+    int ply_white_a_rook_moved = -1;
+    int ply_white_h_rook_moved = -1;
+    int ply_black_a_rook_moved = -1;
+    int ply_black_h_rook_moved = -1;
 
     bool en_passant_possible;
     Square en_passant_square;
@@ -43,6 +51,9 @@ public:
     bool is_draw();
 
     Color color_to_move = Color::white;
+    bool is_white_castled = false;
+    bool is_black_castled = false;
+
     Piece* board[8][8]; //[row]][column]
     
     //benchmark
@@ -61,7 +72,6 @@ public:
 
 
     std::chrono::nanoseconds benchmark_ms;
-
 };
 
 #endif

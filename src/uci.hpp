@@ -6,6 +6,6 @@
 #ifndef UCI_HPP
 #define UCI_HPP
 
-int uci();
+int uci(int depth);
 
 #endif

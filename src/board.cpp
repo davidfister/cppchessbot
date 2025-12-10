@@ -35,14 +35,14 @@ bool Board::is_legal_move(Move move)
     Piece* currentKing = color_to_move == Color::white ? whiteKing : blackKing;
 
     this->do_move(move);
-    bool a = is_square_attacked(currentKing->square, currentKing->color);
+    bool is_legal = !is_square_attacked(currentKing->square, currentKing->color);
     if(move.moved_piece == Piecetype::king){
         if(abs(blackKing->square.row - whiteKing->square.row) <= 1 && abs(blackKing->square.column - whiteKing->square.column)<= 1){
-            a = false;
+            is_legal = false;
         }
     }
     this->undo_move(move);
-    return !a;
+    return is_legal;
 }
 
 bool Board::is_legal_nullmove()
@@ -60,25 +60,29 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
 {
     int dest_row;
     int dest_column;
+    Color attackingColor;
     if(attackedColor == Color::white){
+        attackingColor = Color::black;
         dest_row = s.row + 1;
         dest_column = s.column - 1;
-        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == this->color_to_move && board[dest_row][dest_column]->type == Piecetype::pawn){
+        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == attackingColor && board[dest_row][dest_column]->type == Piecetype::pawn){
             return true;
         }
         dest_column = s.column + 1;
-        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == this->color_to_move && board[dest_row][dest_column]->type == Piecetype::pawn){
+        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == attackingColor && board[dest_row][dest_column]->type == Piecetype::pawn){
             return true;
         }
     }
     else{
+        attackingColor = Color::white;
+
         dest_row = s.row - 1;
         dest_column = s.column - 1;
-        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == this->color_to_move && board[dest_row][dest_column]->type == Piecetype::pawn){
+        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == attackingColor && board[dest_row][dest_column]->type == Piecetype::pawn){
             return true;
         }
         dest_column = s.column + 1;
-        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == this->color_to_move && board[dest_row][dest_column]->type == Piecetype::pawn){
+        if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == attackingColor && board[dest_row][dest_column]->type == Piecetype::pawn){
             return true;
         }
     }
@@ -90,7 +94,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             for(int k = 1; k >= -1; k -= 2){ //up/down
                 dest_row = s.row -i*j;
                 dest_column = s.column + k*(3-j);
-                if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == this->color_to_move && board[dest_row][dest_column]->type == knight){
+                if(valid_coordinates(dest_row,dest_column) && board[dest_row][dest_column]->color == attackingColor && board[dest_row][dest_column]->type == knight){
                     return true;
                 }
             }
@@ -111,7 +115,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column - offset;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
                         return true;
                     }
                     direction_top_left = false;
@@ -127,7 +131,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
                         return true;
                     }
                     direction_top = false;
@@ -142,7 +146,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column + offset;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
                         return true;
                     }
                     direction_top_right = false;
@@ -157,7 +161,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column + offset;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
                         return true;
                     }
                     direction_right = false;
@@ -172,7 +176,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column + offset;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
                         return true;
                     }
                     direction_bottom_right = false;
@@ -187,7 +191,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
                         return true;
                     }
                     direction_bottom = false;
@@ -202,7 +206,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column - offset;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::bishop)){
                         return true;
                     }
                     direction_bottom_left = false;
@@ -217,7 +221,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
             dest_column = s.column - offset;
             if(valid_coordinates(dest_row,dest_column)){
                 if(board[dest_row][dest_column]->type != Piecetype::none){
-                    if(board[dest_row][dest_column]->color == this->color_to_move && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
+                    if(board[dest_row][dest_column]->color == attackingColor && (board[dest_row][dest_column]->type == Piecetype::queen || board[dest_row][dest_column]->type == Piecetype::rook)){
                         return true;
                     }
                     direction_left = false;
@@ -244,6 +248,22 @@ bool Board::is_checkmate()
         delete moves;
         return false;
     }
+
+    //Piece* currentKing = this->color_to_move == Color::white ? whiteKing : blackKing;
+    /*int row;
+    int col;
+    for(int r = 1 ; r <= -1; r--){
+        for(int c = -1; c >= 1; c++){
+            row = currentKing->square.row + r;
+            col = currentKing->square.column + c;
+            if(valid_coordinates(row,col)){
+                Square s{row,col};
+                if(is_square_attacked(s, this->color_to_move)){
+
+                }
+            }
+        }
+    }*/
     delete moves;
     return true;
 }
@@ -374,12 +394,16 @@ bool Board::do_uci_move(std::string s)
     
     Move m = Move(start_square, end_square, color_to_move, board[start_square.row][start_square.column]->type, board[end_square.row][end_square.column]->type);
     this->do_move(m);
+    std::cout<<s << std::endl;
     return true;
 }
 
 bool Board::do_move(Move move)
 {   
     benchmark_calls_do_move++;
+    
+    this->ply++;
+    
     this->captureStack.push_back(board[move.end_square.row][move.end_square.column]);
     board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
     board[move.start_square.row][move.start_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.start_square.row, move.start_square.column));
@@ -390,21 +414,58 @@ bool Board::do_move(Move move)
     else{
         this->color_to_move = Color::black;
     }
+
+    if(move.moved_piece == Piecetype::rook){
+        if(move.color_moved_piece == Color::white){
+            if(ply_white_a_rook_moved == -1){
+                if(move.start_square.column == 0){
+                    this->ply_white_a_rook_moved = this->ply;
+                }
+            }
+            if(ply_white_h_rook_moved == -1){
+                if(move.start_square.column == 7){
+                    this->ply_white_h_rook_moved = this->ply;
+                } 
+            }
+        }
+        else{
+            if(ply_black_a_rook_moved == -1){
+                if(move.start_square.column == 0){
+                    this->ply_black_a_rook_moved = this->ply;
+                }
+            }
+            if(ply_black_h_rook_moved == -1){
+                if(move.start_square.column == 7){
+                    this->ply_black_h_rook_moved = this->ply;
+                } 
+            }
+        }
+    }
+    if(move.moved_piece == Piecetype::king){
+        if(move.color_moved_piece == Color::white){
+            ply_white_king_moved = ply;
+        }
+        else{
+            ply_black_king_moved = ply;
+        }
+    }
+
     if(move.is_promotion){
         delete board[move.end_square.row][move.end_square.column];
         board[move.end_square.row][move.end_square.column] = new Piece(move.color_moved_piece, Piecetype::queen, Square(move.end_square.row, move.end_square.column));
     }
+
     if(move.is_en_passant){
         if(move.color_moved_piece == Color::white){
             this->captureStack.push_back(board[move.end_square.row+1][move.end_square.column]);
-            board[move.end_square.row+1 ][move.end_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.end_square.row+1, move.end_square.column));
+            board[move.end_square.row-1][move.end_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.end_square.row-1, move.end_square.column));
         }
         else{
             this->captureStack.push_back(board[move.end_square.row-1][move.end_square.column]);
-            board[move.end_square.row-1 ][move.end_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.end_square.row-1, move.end_square.column));
-        
+            board[move.end_square.row+1][move.end_square.column] = new Piece(Color::clear, Piecetype::none, Square(move.end_square.row+1, move.end_square.column));
         }
     }
+
     if(move.is_castle){
         if(move.end_square.column == 6){
             Piece* r = board[move.end_square.row][7];
@@ -416,7 +477,20 @@ bool Board::do_move(Move move)
             board[move.end_square.row][0] = board[move.end_square.row][3];
             board[move.end_square.row][3] = r;
         }
+        if(move.color_moved_piece == Color::white){
+            ply_white_a_rook_moved = ply;
+            ply_white_h_rook_moved = ply;
+            ply_white_king_moved = ply;
+            is_white_castled = true;
+        }
+        else{
+            ply_black_a_rook_moved = ply;
+            ply_black_h_rook_moved = ply;
+            ply_black_king_moved = ply;
+            is_black_castled = true;
+        }
     }
+
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
     
@@ -427,6 +501,7 @@ bool Board::do_move(Move move)
 
 bool Board::do_nullmove()
 {
+    this->ply++;
     benchmark_calls_do_nullmove++;
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
@@ -477,12 +552,37 @@ bool Board::undo_move(Move move)
             board[move.end_square.row][3] = board[move.end_square.row][0];
             board[move.end_square.row][0] = r;
         }
+        if(move.color_moved_piece == Color::white){
+            is_white_castled = false;
+        }
+        else{
+            is_black_castled = false;
+        }
+    }
+    if(ply_white_king_moved == ply){
+        ply_white_king_moved = -1;
+    }
+    if(ply_black_king_moved == ply){
+        ply_black_king_moved = -1;
+    }    
+    if(ply_white_a_rook_moved == ply){
+        ply_white_a_rook_moved = -1;
+    }
+    if(ply_black_a_rook_moved == ply){
+        ply_black_a_rook_moved = -1;
+    }
+    if(ply_white_h_rook_moved == ply){
+        ply_white_h_rook_moved = -1;
+    }
+    if(ply_black_h_rook_moved == ply){
+        ply_black_h_rook_moved = -1;
     }
 
 
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
 
+    this->ply--;
     return true;
 }
 
@@ -495,7 +595,7 @@ bool Board::undo_nullmove()
     else{
         this->color_to_move = Color::black;
     }
-  
+    this->ply--;
     return true;
 }
 
@@ -976,8 +1076,6 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
            
             //TODO:
             // - castle
-            // - check
-            // - checkmate
             case Piecetype::king:
             {
                 if(board[row][column]->color == this->color_to_move){
@@ -1024,7 +1122,50 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                             possibleSquares.push_back(Square(row,column+1));
                         }
                     }
-                    //Castle
+                    if(color_to_move == Color::white){
+                        if(ply_white_king_moved == -1){
+                            if(ply_white_a_rook_moved == -1){
+                                if(!is_square_attacked(Square(0,4),Color::white)){
+                                    if(board[0][3]->type == Piecetype::none && !is_square_attacked(Square(0,3), Color::white)){
+                                        if(board[0][2]->type == Piecetype::none && board[0][1]->type == Piecetype::none){
+                                            possibleSquares.push_back(Square(0,2)); // no need to check if c1 is in check because it gets tested on move gen
+                                        }
+                                    }
+                                }
+                            }
+                            if(ply_white_h_rook_moved == -1){
+                                if(!is_square_attacked(Square(0,4),Color::white)){
+                                    if(board[0][5]->type == Piecetype::none && !is_square_attacked(Square(0,5), Color::white)){
+                                        if(board[0][6]->type == Piecetype::none){
+                                            possibleSquares.push_back(Square(0,6)); // no need to check if g1 is in check because it gets tested on move gen
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        if(ply_black_king_moved == -1){
+                            if(ply_black_a_rook_moved == -1){
+                                if(!is_square_attacked(Square(7,4),Color::black)){
+                                    if(board[7][3]->type == Piecetype::none && !is_square_attacked(Square(7,3), Color::black)){
+                                        if(board[7][2]->type == Piecetype::none && board[7][1]->type == Piecetype::none){
+                                            possibleSquares.push_back(Square(7,2)); // no need to check if c8 is in check because it gets tested on move gen    
+                                        }
+                                    }
+                                }
+                            }
+                            if(ply_black_h_rook_moved == -1){
+                                if(!is_square_attacked(Square(7,4),Color::black)){
+                                    if(board[7][5]->type == Piecetype::none && !is_square_attacked(Square(7,5), Color::black)){
+                                        if(board[7][6]->type == Piecetype::none){
+                                            possibleSquares.push_back(Square(7,6)); // no need to check if g8 is in check because it gets tested on move gen
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
             }break;

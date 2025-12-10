@@ -6,7 +6,7 @@
 #include <chrono>
 
 int main(){
-    uci();
-    //debug(4, 4);
+    uci(4);
+    //debug(100, 4);
     return 0;
 }

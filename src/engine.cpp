@@ -147,7 +147,16 @@ double Engine::minimax_max(int depth,double alpha, double beta)
     std::list<Move>* moves = new std::list<Move>;
     for (Move m : *board->allMoves(moves)){
         board->do_move(m);
+        
         double eval = minimax_min(depth-1, alpha, beta);
+        
+        /*if(m.is_capture && depth == 1){
+            eval = minimax_min(1, alpha, beta);
+        }
+        else{
+            eval = minimax_min(depth-1, alpha, beta);
+        }*/
+        
         if(beta < eval){
             benchmark_cutoffs++;
             board->undo_move(m);
@@ -173,8 +182,15 @@ double Engine::minimax_min(int depth,double alpha, double beta)
     std::list<Move>* moves = new std::list<Move>;
     for (Move m : *board->allMoves(moves)){
         board->do_move(m);
-        
         double eval = minimax_max(depth-1, alpha, beta);
+        
+        /*if(m.is_capture && depth == 1){
+            eval = minimax_max(1, alpha, beta);
+        }
+        else{
+            eval = minimax_max(depth-1, alpha, beta);
+        }*/
+        
         if(alpha > eval){
             benchmark_cutoffs++;
             board->undo_move(m);
@@ -244,6 +260,13 @@ double Engine::evaluate_minimax(int depth)
                 evaluation -= (7-row)*0.1;
             }
         }
+    }
+
+    if(board->is_white_castled){
+        evaluation += 0.5;
+    }
+    if(board->is_black_castled){
+        evaluation -= 0.5;
     }
     return evaluation;
 }
