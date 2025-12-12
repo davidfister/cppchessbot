@@ -16,22 +16,13 @@ class Board
     Piece* whiteKing;
     Piece* blackKing;
 
-    int ply = 0;
-    int ply_white_king_moved = -1;
-    int ply_black_king_moved = -1;
-    int ply_white_a_rook_moved = -1;
-    int ply_white_h_rook_moved = -1;
-    int ply_black_a_rook_moved = -1;
-    int ply_black_h_rook_moved = -1;
+    
 
     bool en_passant_possible;
     Square en_passant_square;
 
-    bool valid_coordinates(int row, int column);
-    bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
-    bool is_legal_move(Move move);
-    bool is_legal_nullmove();
-    
+
+//TODO: For benchmark reasons all functions public. Undo
 public:
     void init();
         
@@ -50,9 +41,23 @@ public:
     bool is_checkmate();
     bool is_draw();
 
+
+    bool valid_coordinates(int row, int column);
+    bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
+    bool is_legal_move(Move move);
+    bool is_legal_nullmove();
+
     Color color_to_move = Color::white;
     bool is_white_castled = false;
     bool is_black_castled = false;
+
+    int ply = 0;
+    int ply_white_king_moved = -1;
+    int ply_black_king_moved = -1;
+    int ply_white_a_rook_moved = -1;
+    int ply_white_h_rook_moved = -1;
+    int ply_black_a_rook_moved = -1;
+    int ply_black_h_rook_moved = -1;
 
     Piece* board[8][8]; //[row]][column]
     
@@ -64,11 +69,11 @@ public:
     long benchmark_calls_undo_nullmove = 0;
     long benchmark_calls_is_checkmate = 0;
     long benchmark_calls_is_draw = 0;
-
+    long benchmark_calls_is_square_attacked = 0;
     long benchmark_calls_valid_coordinates = 0;
     long benchmark_calls_is_valid_dest_square = 0;
-    long benchmark_calls_valid_is_legal_move = 0;
-    long benchmark_calls_valid_is_legal_nullmove = 0;
+    long benchmark_calls_is_legal_move = 0;
+    long benchmark_calls_is_legal_nullmove = 0;
 
 
     std::chrono::nanoseconds benchmark_ms;

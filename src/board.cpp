@@ -31,7 +31,7 @@ bool Board::is_valid_dest_square(int row, int column, Color color_of_moving_piec
 
 bool Board::is_legal_move(Move move)
 {    
-    benchmark_calls_valid_is_legal_move++;
+    benchmark_calls_is_legal_move++;
     Piece* currentKing = color_to_move == Color::white ? whiteKing : blackKing;
 
     this->do_move(move);
@@ -47,7 +47,7 @@ bool Board::is_legal_move(Move move)
 
 bool Board::is_legal_nullmove()
 {
-    benchmark_calls_valid_is_legal_nullmove++;
+    benchmark_calls_is_legal_nullmove++;
     Piece* currentKing = this->color_to_move == Color::white ? whiteKing : blackKing;
 
     this->do_nullmove();
@@ -57,7 +57,8 @@ bool Board::is_legal_nullmove()
 }
 
 bool Board::is_square_attacked(Square s, Color attackedColor)
-{
+{   
+    benchmark_calls_is_square_attacked++;
     int dest_row;
     int dest_column;
     Color attackingColor;
@@ -271,7 +272,9 @@ bool Board::is_checkmate()
 bool Board::is_draw()
 {
     benchmark_calls_is_draw++;
-
+    if(ply < 32){
+        return false;
+    }
     std::list<Move>* moves = new std::list<Move>;
 
     if(this->allMoves(moves)->size() != 0){
@@ -533,11 +536,11 @@ bool Board::undo_move(Move move)
     }
     if(move.is_en_passant){
         if(move.color_moved_piece == Color::white){
-            delete board[move.end_square.row+1 ][move.end_square.column];
+            delete board[move.end_square.row+1][move.end_square.column];
             board[move.end_square.row+1][move.end_square.column] = this->captureStack.back();
         }
         else{
-            delete board[move.end_square.row-1 ][move.end_square.column];
+            delete board[move.end_square.row-1][move.end_square.column];
             board[move.end_square.row-1][move.end_square.column] = this->captureStack.back();        
         }
     }
@@ -1027,7 +1030,7 @@ std::list<Move> *Board::allMoves(std::list<Move> *allMovesList){
                         }   
 
                         if(valid_coordinates(row+1, column+1)){
-                            if(board[row+1][column+1]->type != Piecetype::none && board[row+1][column+1]->color != color_to_move){
+                            if((board[row+1][column+1]->type != Piecetype::none && board[row+1][column+1]->color != color_to_move)){
                                 possibleSquares.push_back(Square(row+1,column+1));
                             }
                         }  
