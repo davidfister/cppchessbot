@@ -7,16 +7,17 @@
 #include"piece.hpp"
 #include <string>
 #include <chrono>
+#include <vector>
 
 
 class Board
 {
-    std::list<Piece*> captureStack;
- 
+    std::vector<Piece*> captureStack;
+    std::vector<Piece*> blankPieceStack;
     Piece* whiteKing;
     Piece* blackKing;
 
-    
+    std::vector<Square> en_passant_squares;
 
     bool en_passant_possible;
     Square en_passant_square;
@@ -25,8 +26,9 @@ class Board
 //TODO: For benchmark reasons all functions public. Undo
 public:
     void init();
-        
-    std::list<Move>* allMoves(std::list<Move>* allMovesList);
+    void init(std::string s);
+
+    std::vector<Move>* allMoves(std::vector<Move>* allMovesList);
     std::string print_board();
 
     bool do_uci_move(std::string s);
@@ -58,6 +60,7 @@ public:
     int ply_white_h_rook_moved = -1;
     int ply_black_a_rook_moved = -1;
     int ply_black_h_rook_moved = -1;
+
 
     Piece* board[8][8]; //[row]][column]
     

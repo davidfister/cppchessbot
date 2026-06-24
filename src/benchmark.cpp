@@ -1,5 +1,5 @@
 #include "benchmark.hpp"
-#include <iostream>
+#include<iostream>
 
 //unused atp
 template<typename T>
@@ -91,7 +91,7 @@ std::chrono::milliseconds time_allMoves_withExistingList(long count){
     Board b{};
     b.init();
     Square s = Square(4,5);
-    std::list<Move>* moves = new std::list<Move>;
+    std::vector<Move>* moves = new std::vector<Move>;
 
     auto t1 = std::chrono::high_resolution_clock::now();
     for(long i = 0; i < count; i++){
@@ -110,7 +110,7 @@ std::chrono::milliseconds time_allMoves_withoutExistingList(long count){
 
     auto t1 = std::chrono::high_resolution_clock::now();
     for(long i = 0; i < count; i++){
-        std::list<Move>* moves = new std::list<Move>;
+        std::vector<Move>* moves = new std::vector<Move>;
         b.allMoves(moves);
         delete moves;
     }

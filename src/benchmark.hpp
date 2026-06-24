@@ -6,9 +6,6 @@
 #include <functional>
 
 template<typename T> std::chrono::milliseconds time_function(T f, int count);
-std::chrono::milliseconds time_do_move(int count);
-
-
 
 void benchmark(long count);
 

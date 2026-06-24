@@ -5,7 +5,9 @@
 
 int debug(int num_moves, int engine_depth){
     Board board = Board();
-    board.init();
+    board.init("7k/8/8/8/R7/8/8/7K");
+    board.color_to_move = Color::black;
+    std::cout<< board.print_board()<<std::endl;
     Engine engine = Engine();
     engine.init(&board);  
 
@@ -37,17 +39,27 @@ int debug(int num_moves, int engine_depth){
             
         }*/
         
+        //std::cout << engine.evaluate_minimax(0) <<std::endl;
+        std::cout<< board.print_board()<<std::endl;
+        
+        std::vector<Move>* moves = new std::vector<Move>;
+        board.allMoves(moves);
 
-        //std::string s;
-        //std::cin >> s;      
-        //board.do_uci_move(s);
+        std::cout << std::endl;
+
+        
+
+        std::string s;
+        std::cin >> s;      
+
+        board.do_uci_move(s);
+
         
         //std::cout << engine.evaluate_minimax(0) <<std::endl;
-        //std::cout<< board.print_board()<<std::endl;
+        std::cout<< board.print_board()<<std::endl;
         
         board.do_move(engine.find_best_move_minimax(engine_depth));
 
-        //std::cout<< board.ply_white_a_rook_moved << board.ply_white_h_rook_moved <<std::endl;
 
 
 

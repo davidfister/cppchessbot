@@ -44,7 +44,7 @@ int uci(int depth){
             board.do_move(m);
         }   
 
-    
+
     }
 
     return 0;
