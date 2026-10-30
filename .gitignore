@@ -42,3 +42,9 @@
 
 # VS Code
 .vscode
+
+#lichess-bot
+lichess-bot/
+
+#Flamegraph
+FlameGraph/

@@ -7,36 +7,38 @@
 #include"piece.hpp"
 #include <string>
 #include <chrono>
+#include <vector>
+#include <map>
 
 
 class Board
 {
-    std::list<Piece*> captureStack;
- 
+    std::vector<Piece*> captureStack;
+    std::vector<Piece*> blankPieceStack;
     Piece* whiteKing;
     Piece* blackKing;
 
-    int ply = 0;
-    int ply_white_king_moved = -1;
-    int ply_black_king_moved = -1;
-    int ply_white_a_rook_moved = -1;
-    int ply_white_h_rook_moved = -1;
-    int ply_black_a_rook_moved = -1;
-    int ply_black_h_rook_moved = -1;
+    bool attacked_squares[8][8] = {false};
+
+    std::vector<Square> en_passant_squares;
 
     bool en_passant_possible;
     Square en_passant_square;
 
-    bool valid_coordinates(int row, int column);
-    bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
-    bool is_legal_move(Move move);
-    bool is_legal_nullmove();
-    
+
+//TODO: For benchmark reasons all functions public. Undo
 public:
     void init();
-        
-    std::list<Move>* allMoves(std::list<Move>* allMovesList);
+    void init(std::string s);
+
+    std::map<std::string, int> allmoves_fen_map;// working
+    std::map<std::string, std::vector<Move>*> allmoves_map;// working
+
+    
+    std::vector<Move>* allMoves(std::vector<Move>* allMovesList);
     std::string print_board();
+
+    std::string get_fen();
 
     bool do_uci_move(std::string s);
 
@@ -46,13 +48,30 @@ public:
     bool undo_move(Move move);
     bool undo_nullmove();
 
+    void generate_possible_squares(std::vector<Square *> *possibleSquares, int row, int column);
+
     bool is_square_attacked(Square s, Color attackedColor);
     bool is_checkmate();
     bool is_draw();
 
+    
+    bool valid_coordinates(int row, int column);
+    bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
+    bool is_legal_move(Move move);
+    bool is_legal_nullmove();
+
     Color color_to_move = Color::white;
     bool is_white_castled = false;
     bool is_black_castled = false;
+
+    int ply = 0;
+    int ply_white_king_moved = -1;
+    int ply_black_king_moved = -1;
+    int ply_white_a_rook_moved = -1;
+    int ply_white_h_rook_moved = -1;
+    int ply_black_a_rook_moved = -1;
+    int ply_black_h_rook_moved = -1;
+
 
     Piece* board[8][8]; //[row]][column]
     
@@ -64,11 +83,11 @@ public:
     long benchmark_calls_undo_nullmove = 0;
     long benchmark_calls_is_checkmate = 0;
     long benchmark_calls_is_draw = 0;
-
+    long benchmark_calls_is_square_attacked = 0;
     long benchmark_calls_valid_coordinates = 0;
     long benchmark_calls_is_valid_dest_square = 0;
-    long benchmark_calls_valid_is_legal_move = 0;
-    long benchmark_calls_valid_is_legal_nullmove = 0;
+    long benchmark_calls_is_legal_move = 0;
+    long benchmark_calls_is_legal_nullmove = 0;
 
 
     std::chrono::nanoseconds benchmark_ms;

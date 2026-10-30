@@ -42,10 +42,9 @@ int uci(int depth){
             Move m = engine.find_best_move_minimax(depth);
             std::cout << "bestmove " <<  m.to_string() << std::endl;
             board.do_move(m);
+        }   
 
-        }
 
-    
     }
 
     return 0;
