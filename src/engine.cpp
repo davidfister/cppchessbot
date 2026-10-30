@@ -108,10 +108,13 @@ bool Engine::init(Board *board)
 Move Engine::find_best_move_minimax(int depth)
 {
     benchmark_nodes++;
-    std::vector<Move>* moves = new std::vector<Move>;
-    Move bestMove = board->allMoves(moves)->front();
+    std::vector<Move>* moves = NULL;
+    moves = board->allMoves(moves);
+    Move bestMove = moves->front();
 
     std::cout<<board->print_board()<<std::endl;
+    std::cout<<board->get_fen()<<std::endl;
+
     for(auto m : *moves){
         m.print_move();
     }
@@ -138,7 +141,6 @@ Move Engine::find_best_move_minimax(int depth)
         }
         board->undo_move(m);
     }
-    delete moves;
     return bestMove;
 }
 
@@ -149,8 +151,9 @@ double Engine::minimax_max(int depth,double alpha, double beta)
         return this->evaluate_minimax(depth);
     }
 
-    std::vector<Move>* moves = new std::vector<Move>;
-    for (Move m : *board->allMoves(moves)){
+    std::vector<Move>* moves = NULL;
+    moves = board->allMoves(moves);
+    for (Move m : *moves){
         board->do_move(m);
         double eval = minimax_min(depth-1, alpha, beta);
         
@@ -164,7 +167,6 @@ double Engine::minimax_max(int depth,double alpha, double beta)
         if(beta < eval){
             benchmark_cutoffs++;
             board->undo_move(m);
-            delete moves;
             return beta;
         }
         if(eval > alpha){
@@ -173,7 +175,6 @@ double Engine::minimax_max(int depth,double alpha, double beta)
         
         board->undo_move(m);
     }
-    delete moves;
     return alpha;
 }
 
@@ -184,7 +185,7 @@ double Engine::minimax_min(int depth,double alpha, double beta)
         return this->evaluate_minimax(depth);
     }
 
-    std::vector<Move>* moves = new std::vector<Move>;
+    std::vector<Move>* moves = NULL;
     for (Move m : *board->allMoves(moves)){
         board->do_move(m);
         double eval = minimax_max(depth-1, alpha, beta);
@@ -199,7 +200,6 @@ double Engine::minimax_min(int depth,double alpha, double beta)
         if(alpha > eval){
             benchmark_cutoffs++;
             board->undo_move(m);
-            delete moves;
             return alpha;
         }
         if(eval < beta){
@@ -208,7 +208,6 @@ double Engine::minimax_min(int depth,double alpha, double beta)
 
         board->undo_move(m);
     }
-    delete moves;
     return beta;
 }
 

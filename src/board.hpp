@@ -8,6 +8,7 @@
 #include <string>
 #include <chrono>
 #include <vector>
+#include <map>
 
 
 class Board
@@ -16,6 +17,8 @@ class Board
     std::vector<Piece*> blankPieceStack;
     Piece* whiteKing;
     Piece* blackKing;
+
+    bool attacked_squares[8][8] = {false};
 
     std::vector<Square> en_passant_squares;
 
@@ -28,8 +31,14 @@ public:
     void init();
     void init(std::string s);
 
+    std::map<std::string, int> allmoves_fen_map;// working
+    std::map<std::string, std::vector<Move>*> allmoves_map;// working
+
+    
     std::vector<Move>* allMoves(std::vector<Move>* allMovesList);
     std::string print_board();
+
+    std::string get_fen();
 
     bool do_uci_move(std::string s);
 
@@ -39,11 +48,13 @@ public:
     bool undo_move(Move move);
     bool undo_nullmove();
 
+    void generate_possible_squares(std::vector<Square *> *possibleSquares, int row, int column);
+
     bool is_square_attacked(Square s, Color attackedColor);
     bool is_checkmate();
     bool is_draw();
 
-
+    
     bool valid_coordinates(int row, int column);
     bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
     bool is_legal_move(Move move);
