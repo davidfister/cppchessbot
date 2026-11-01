@@ -4,7 +4,7 @@
 
 bool Board::valid_coordinates(int row, int column)
 {
-    benchmark_calls_valid_coordinates++;
+    
     if(column < 0 || column > 7){
         return false;
     }
@@ -16,7 +16,7 @@ bool Board::valid_coordinates(int row, int column)
 
 bool Board::is_valid_dest_square(int row, int column, Color color_of_moving_piece)
 {    
-    benchmark_calls_is_valid_dest_square++;
+    
 
     if(board[row][column]->type == Piecetype::none){
         return true;
@@ -31,7 +31,7 @@ bool Board::is_valid_dest_square(int row, int column, Color color_of_moving_piec
 
 bool Board::is_legal_move(Move move)
 {    
-    benchmark_calls_is_legal_move++;
+    
     Piece* currentKing = color_to_move == Color::white ? whiteKing : blackKing;
 
     this->do_move(move);
@@ -47,7 +47,7 @@ bool Board::is_legal_move(Move move)
 
 bool Board::is_legal_nullmove()
 {
-    benchmark_calls_is_legal_nullmove++;
+    
     Piece* currentKing = this->color_to_move == Color::white ? whiteKing : blackKing;
 
     this->do_nullmove();
@@ -61,7 +61,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
     if (attacked_squares[s.row][s.column]){
         return true;
     }
-    benchmark_calls_is_square_attacked++;
+    
     int dest_row;
     int dest_column;
     Color attackingColor;
@@ -240,7 +240,7 @@ bool Board::is_square_attacked(Square s, Color attackedColor)
 
 bool Board::is_checkmate()
 {
-    benchmark_calls_is_checkmate++;
+    
     if(is_legal_nullmove()){
         return false;
     }
@@ -272,7 +272,7 @@ bool Board::is_checkmate()
 bool Board::is_draw()
 {
     return false;
-    benchmark_calls_is_draw++;
+    
     if(ply < 18){
         return false;
     }
@@ -478,7 +478,7 @@ bool Board::do_uci_move(std::string s)
 
 bool Board::do_move(Move move)
 {   
-    benchmark_calls_do_move++;
+    
     
     this->ply++;
     
@@ -618,7 +618,7 @@ bool Board::do_move(Move move)
 bool Board::do_nullmove()
 {
     this->ply++;
-    benchmark_calls_do_nullmove++;
+    
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
@@ -631,7 +631,7 @@ bool Board::do_nullmove()
 
 bool Board::undo_move(Move move)
 {
-    benchmark_calls_undo_move++;
+    
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
@@ -719,7 +719,7 @@ bool Board::undo_move(Move move)
 
 bool Board::undo_nullmove()
 {
-    benchmark_calls_undo_nullmove++;
+    
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
@@ -1299,7 +1299,6 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
 }
 
 std::vector<Move> *Board::allMoves(std::vector<Move> *allMovesList){
-    benchmark_calls_allMoves++;
     std::string fen = this->get_fen();
     allmoves_fen_map[fen] += 1;
     

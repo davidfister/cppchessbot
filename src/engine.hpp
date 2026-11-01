@@ -19,9 +19,8 @@ public:
     Move find_best_move_minimax(int depth);
 
 
-    //benchmark
-    int benchmark_cutoffs = 0;
-    int benchmark_nodes = 0;
+
+
 };
 
 #endif

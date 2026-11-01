@@ -107,7 +107,7 @@ bool Engine::init(Board *board)
 
 Move Engine::find_best_move_minimax(int depth)
 {
-    benchmark_nodes++;
+
     std::vector<Move>* moves = NULL;
     moves = board->allMoves(moves);
     Move bestMove = moves->front();
@@ -146,7 +146,7 @@ Move Engine::find_best_move_minimax(int depth)
 
 double Engine::minimax_max(int depth,double alpha, double beta)
 {
-    benchmark_nodes++;
+
     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
         return this->evaluate_minimax(depth);
     }
@@ -165,7 +165,7 @@ double Engine::minimax_max(int depth,double alpha, double beta)
         }*/
         
         if(beta < eval){
-            benchmark_cutoffs++;
+
             board->undo_move(m);
             return beta;
         }
@@ -180,7 +180,7 @@ double Engine::minimax_max(int depth,double alpha, double beta)
 
 double Engine::minimax_min(int depth,double alpha, double beta)
 {
-    benchmark_nodes++;
+
     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
         return this->evaluate_minimax(depth);
     }
@@ -198,7 +198,7 @@ double Engine::minimax_min(int depth,double alpha, double beta)
         }*/
         
         if(alpha > eval){
-            benchmark_cutoffs++;
+
             board->undo_move(m);
             return alpha;
         }

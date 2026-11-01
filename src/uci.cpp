@@ -28,9 +28,8 @@ int uci(int depth){
         else if(uci_input.substr(0,8) == "position"){
             if(uci_input.substr(9,8) == "startpos"){
                 if(uci_input.size() >22 && uci_input.substr(18,5) == "moves"){
-                    if(uci_input.substr(uci_input.size() - 1) == "q"){
+                    if(uci_input.substr(uci_input.size() - 1) == "q"){ // is this if piece is promoted? if yes, change to right promotion TODO
                         board.do_uci_move(uci_input.substr(uci_input.size() - 5,4));
-
                     }
                     else{
                         board.do_uci_move(uci_input.substr(uci_input.size() - 4));
