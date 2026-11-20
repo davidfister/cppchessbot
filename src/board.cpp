@@ -2,6 +2,19 @@
 #include "piecetypes.hpp"
 #include <iostream>
 
+void Board::HELPER_PRINT_EPS_STACK (std::string str){
+    std::cout <<"ply after do move" << this->ply << std::endl;
+    std::cout << this->en_passant_squares.size() << std::endl;
+    for (auto s : this->en_passant_squares){
+        std::string d = {}; 
+        d += 'a' + s.column;
+        d += '1' + s.row;
+        std::cout <<str << " " << d << std::endl;
+       
+    }
+
+}
+
 bool Board::valid_coordinates(int row, int column)
 {
     
@@ -16,8 +29,6 @@ bool Board::valid_coordinates(int row, int column)
 
 bool Board::is_valid_dest_square(int row, int column, Color color_of_moving_piece)
 {    
-    
-
     if(board[row][column]->type == Piecetype::none){
         return true;
     }
@@ -33,15 +44,36 @@ bool Board::is_legal_move(Move move)
 {    
     
     Piece* currentKing = color_to_move == Color::white ? whiteKing : blackKing;
+    std::string a = this->print_board();
+    std::cout <<"(_) Board right before do_move\n"<< a << std::endl;
 
     this->do_move(move);
+    std::cout <<"(_) Board right after do_move\n" << this->print_board() << std::endl;
+
     bool is_legal = !is_square_attacked(currentKing->square, currentKing->color);
     if(move.moved_piece == Piecetype::king){
+
         if(abs(blackKing->square.row - whiteKing->square.row) <= 1 && abs(blackKing->square.column - whiteKing->square.column)<= 1){
             is_legal = false;
         }
     }
+  
     this->undo_move(move);
+
+    
+
+    std::string b = this->print_board();
+    std::cout <<"(_) Board right after undo_move\n"<< b << std::endl;
+    if(a!=b){
+            move.print_move();
+            std::cout << this->en_passant_possible << std::endl;
+            std::string d = {};
+            d += 'a' + this->en_passant_squares[this->ply].column;
+            d += '1' + this->en_passant_squares[this->ply].row;
+            std::cout << d << std::endl;
+
+            exit(-1);
+    }
     return is_legal;
 }
 
@@ -286,23 +318,39 @@ bool Board::is_draw()
 
 void Board::init()
 {   
-    init("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    init("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
 }
 
 void Board::init(std::string s)
 {
+    std::cout << "--- INIT NEW BOARD WITH FEN: " << s <<std::endl;
     captureStack.reserve(32);
-
+    
+    std::string substring;
+    std::vector<std::string> substrings;
+    std::string row_string;
     std::vector<std::string> row_strings;
     size_t pos = 0;
-    std::string row_string;
-    while ((pos = s.find("/")) != std::string::npos) {
-        row_string = s.substr(0, pos);
-        row_strings.push_back(row_string);
+    
+    while ((pos = s.find(' ')) != std::string::npos){
+        substring = s.substr(0, pos);
+        substrings.push_back(substring);
         s.erase(0, pos + 1);
+        
     }
-    row_strings.push_back(s);
+    substrings.push_back(s);
 
+    
+    std::string board_string = substrings[0];
+
+    while ((pos = board_string.find("/")) != std::string::npos) {
+        row_string = board_string.substr(0, pos);
+
+        row_strings.push_back(row_string);
+        board_string.erase(0, pos + 1);
+    }
+    row_strings.push_back(board_string);
+    
     int row = 7;
     int col = 0;
     Color color;
@@ -364,11 +412,69 @@ void Board::init(std::string s)
                 blankPieceStack.push_back(new Piece(Color::clear, Piecetype::none ,Square(row,col)));
                 col++;
             }
+            else{
+                std::cout << "Invalid token in input fen string"<<std::endl;
+                exit(-1);
+            }
         }    
         row -= 1;
         col = 0;
     }
-    en_passant_squares.push_back(Square(-1,-1)); 
+    
+
+    std::string color_to_move_string = substrings[1];
+    std::cout<< "color to move: "<< color_to_move_string<<std::endl;
+    if(color_to_move_string == "w"){
+        this->color_to_move = Color::white;
+    }
+    else{
+        this->color_to_move = Color::black;
+    }
+    
+    /*std::string ply_string = substrings[5];
+    if (this->color_to_move == Color::white){
+        this->ply = std::stoi(ply_string)*2-1;
+    }
+    else{
+        this->ply = std::stoi(ply_string)*2;
+    }*/
+    this->ply = 1;
+    std::string castle_string = substrings[2];
+    if(castle_string != "-"){
+        for(auto& c : castle_string){
+            switch (c)
+            {
+            case 'K':
+                this->ply_white_h_rook_moved = ply;
+                break;
+            case 'k':
+                this->ply_black_h_rook_moved = ply;
+                break;
+
+            case 'Q':
+                this->ply_white_a_rook_moved = ply;
+                break;
+            case 'q':
+                this->ply_black_a_rook_moved = ply;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    
+    std::string en_passant_string = substrings[3];
+    if(en_passant_string == "-"){
+        en_passant_squares.push_back(Square(-10,-10)); //TODO why?
+    }
+    else{
+        Square eps = Square(-((int)'1' - en_passant_string.at(1)),-((int)'a' - en_passant_string.at(0)));
+
+        en_passant_squares.push_back(eps);
+    }
+
+    
+
 }
 
 std::string Board::print_board()
@@ -544,11 +650,26 @@ bool Board::do_move(Move move)
             ply_black_king_moved = ply;
         }
     }
-    en_passant_squares.push_back(Square(-1,-1));
+    
     if(move.moved_piece == Piecetype::pawn){
         if(abs(move.start_square.row-move.end_square.row)==2){
+            std::string d = {};
             en_passant_squares.push_back(Square(move.start_square.row+(move.end_square.row-move.start_square.row)/2, move.start_square.column));
+            d += 'a' + this->en_passant_squares[this->ply].column;
+            d += '1' + this->en_passant_squares[this->ply].row;
+            std::cout <<"Added EPS:"<< d << std::endl;
+
+            if (d == "a3"){ 
+                std::cout <<"Adding of a6 to eps in move:"<< d << std::endl;
+                move.print_move();
+            }   
         }
+        else{
+            en_passant_squares.push_back(Square(-10,-10));
+        }
+    }
+    else{
+        en_passant_squares.push_back(Square(-10,-10));
     }
 
     if(move.is_promotion){
@@ -610,6 +731,8 @@ bool Board::do_move(Move move)
 
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
+    
+    HELPER_PRINT_EPS_STACK("END OF DO MOVE FUNCTION");
     
     
     return true;
@@ -712,6 +835,7 @@ bool Board::undo_move(Move move)
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
 
+    HELPER_PRINT_EPS_STACK("END OF UNDO MOVE FUNCTION");
 
     this->ply--;
     return true;
@@ -731,6 +855,18 @@ bool Board::undo_nullmove()
 }
 
 void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int row, int column){
+    HELPER_PRINT_EPS_STACK("_");
+
+    std::cout << "STARTING SQUARE GENERATION WITH" << std::endl;
+    std::string d = {};
+    d += 'a' + this->en_passant_squares[this->ply-1].column;
+    d += '1' + this->en_passant_squares[this->ply-1].row;
+    std::cout << d << std::endl;
+
+    std::cout << print_board() << std::endl;
+    std::cout << this->ply << std::endl;
+
+
     switch (board[row][column]->type)
             {
 
@@ -1150,13 +1286,13 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                         }   
 
                         if(valid_coordinates(row+1, column+1)){
-                            if((board[row+1][column+1]->type != Piecetype::none && board[row+1][column+1]->color != color_to_move) || (en_passant_squares[ply].row == row+1 && en_passant_squares[ply].column == column +1)){
+                            if((board[row+1][column+1]->type != Piecetype::none && board[row+1][column+1]->color != color_to_move) || (en_passant_squares[ply-1].row == row+1 && en_passant_squares[ply-1].column == column +1)){
                                 possibleSquares->push_back(new Square(row+1,column+1));
                             }
                         }  
 
                         if(valid_coordinates(row+1, column-1)){
-                            if((board[row+1][column-1]->type != Piecetype::none && board[row+1][column-1]->color != color_to_move) || (en_passant_squares[ply].row == row+1 && en_passant_squares[ply].column == column -1)){
+                            if((board[row+1][column-1]->type != Piecetype::none && board[row+1][column-1]->color != color_to_move) || (en_passant_squares[ply-1].row == row+1 && en_passant_squares[ply-1].column == column -1)){
                                 possibleSquares->push_back(new Square(row+1,column-1));
                             }
                         }  
@@ -1183,7 +1319,15 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                         }  
 
                         if(valid_coordinates(row-1, column-1)){
-                            if((board[row-1][column-1]->type != Piecetype::none && board[row-1][column-1]->color != color_to_move) || (en_passant_squares[ply].row == row-1 && en_passant_squares[ply].column == column -1)){
+                            if((board[row-1][column-1]->type != Piecetype::none && board[row-1][column-1]->color != color_to_move) || (en_passant_squares[ply-1].row == row-1 && en_passant_squares[ply-1].column == column -1)){
+                                std::cout << "(*)board in pawn move generation\n" << this->print_board() << std::endl;
+                                std::cout << "(*)can capture to bottom left " << (board[row-1][column-1]->type != Piecetype::none && board[row-1][column-1]->color != color_to_move) << std::endl;
+                                std::cout << "(*)can en passant to bottom left " <<(en_passant_squares[ply-1].row == row-1 && en_passant_squares[ply-1].column == column -1) << std::endl;
+                                std::string d = {};
+                                d += 'a' + this->en_passant_squares[this->ply-1].column;
+                                d += '1' + this->en_passant_squares[this->ply-1].row;
+                                std::cout  << "(*)en passant square "<< d << std::endl;
+                                //exit(-1);
                                 possibleSquares->push_back(new Square(row-1,column-1));
                             }
                         } 
@@ -1192,10 +1336,6 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
 
             }break;
 
-            
-            
-            
-            
            
             //TODO:
             case Piecetype::king:
@@ -1306,7 +1446,7 @@ std::vector<Move> *Board::allMoves(std::vector<Move> *allMovesList){
         allMovesList = allmoves_map[fen];
         return allMovesList;
     }
-
+    
     allMovesList = new std::vector<Move>;
     allMovesList->reserve(64);
     for(int row = 0; row < 8; row++){

@@ -17,7 +17,7 @@ class Board
     std::vector<Piece*> blankPieceStack;
     Piece* whiteKing;
     Piece* blackKing;
-
+    void HELPER_PRINT_EPS_STACK(std::string s);
     bool attacked_squares[8][8] = {false};
 
     std::vector<Square> en_passant_squares;
@@ -60,11 +60,11 @@ public:
     bool is_legal_move(Move move);
     bool is_legal_nullmove();
 
-    Color color_to_move = Color::white;
-    bool is_white_castled = false;
+    Color color_to_move;
+    bool is_white_castled = false; //TODO: OMIT? is only used for compute
     bool is_black_castled = false;
 
-    int ply = 0;
+    int ply = 1; //If nothing happened yet, ply == 1
     int ply_white_king_moved = -1;
     int ply_black_king_moved = -1;
     int ply_white_a_rook_moved = -1;
