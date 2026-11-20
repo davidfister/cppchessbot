@@ -17,9 +17,9 @@ class Board
     std::vector<Piece*> blankPieceStack;
     Piece* whiteKing;
     Piece* blackKing;
-    void HELPER_PRINT_EPS_STACK(std::string s);
     bool attacked_squares[8][8] = {false};
 
+    
     std::vector<Square> en_passant_squares;
 
     bool en_passant_possible;
@@ -28,6 +28,8 @@ class Board
 
 //TODO: For benchmark reasons all functions public. Undo
 public:
+    int n_do_move = 0;
+    int n_undo_move = 0;
     void init();
     void init(std::string s);
 

@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
                 std::cout << tokens[0] << " me:" << moves->size()<<" real:" << tokens[1] << std::endl;
                 std::cout << board.print_board() << std::endl;
 
-                if(std::stoi(tokens[1]) != moves->size()){
+                if(std::stoi(tokens[1]) < moves->size()){
                     for (auto m : *moves)
                     {
                         m.print_move();

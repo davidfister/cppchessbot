@@ -1,16 +1,17 @@
-.PHONY: build run build-and-run flamegraph
+.PHONY: build run build-and-run flamegraph build-debug
 
 BOT_VENV = $(CURDIR)/lichess-bot/venv
 
-
+build-debug:
+	g++ $(CURDIR)/src/*.cpp -Ofast -g -fno-omit-frame-pointer -flto -o $(CURDIR)/src/engine.out
 build:
-	g++ $(CURDIR)/src/*.cpp -O4 -g -fno-omit-frame-pointer -o $(CURDIR)/src/engine.out
+	g++ $(CURDIR)/src/*.cpp -Ofast -flto -o $(CURDIR)/src/engine.out
 run: 
 	cd lichess-bot && $(BOT_VENV)/bin/python3 lichess-bot.py
 
 build-and-run: build run
 
-flamegraph: 
+flamegraph: build-debug
 	@TIME=$$(date '+%m_%d_%Hh%Mm'); \
 	sudo sysctl kernel.perf_event_paranoid=1; \
 	sudo perf record -g -o $(CURDIR)/FlameGraph/record/perf.data -- $(CURDIR)/src/engine.out benchmark; \

@@ -112,12 +112,9 @@ Move Engine::find_best_move_minimax(int depth)
     moves = board->allMoves(moves);
     Move bestMove = moves->front();
 
-    std::cout<<board->print_board()<<std::endl;
-    std::cout<<board->get_fen()<<std::endl;
+    //std::cout<<board->print_board()<<std::endl;
+    //std::cout<<board->get_fen()<<std::endl;
 
-    for(auto m : *moves){
-        m.print_move();
-    }
 
 
     double alpha = -1500;

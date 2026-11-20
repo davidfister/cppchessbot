@@ -2,18 +2,6 @@
 #include "piecetypes.hpp"
 #include <iostream>
 
-void Board::HELPER_PRINT_EPS_STACK (std::string str){
-    std::cout <<"ply after do move" << this->ply << std::endl;
-    std::cout << this->en_passant_squares.size() << std::endl;
-    for (auto s : this->en_passant_squares){
-        std::string d = {}; 
-        d += 'a' + s.column;
-        d += '1' + s.row;
-        std::cout <<str << " " << d << std::endl;
-       
-    }
-
-}
 
 bool Board::valid_coordinates(int row, int column)
 {
@@ -44,11 +32,8 @@ bool Board::is_legal_move(Move move)
 {    
     
     Piece* currentKing = color_to_move == Color::white ? whiteKing : blackKing;
-    std::string a = this->print_board();
-    std::cout <<"(_) Board right before do_move\n"<< a << std::endl;
 
     this->do_move(move);
-    std::cout <<"(_) Board right after do_move\n" << this->print_board() << std::endl;
 
     bool is_legal = !is_square_attacked(currentKing->square, currentKing->color);
     if(move.moved_piece == Piecetype::king){
@@ -61,19 +46,6 @@ bool Board::is_legal_move(Move move)
     this->undo_move(move);
 
     
-
-    std::string b = this->print_board();
-    std::cout <<"(_) Board right after undo_move\n"<< b << std::endl;
-    if(a!=b){
-            move.print_move();
-            std::cout << this->en_passant_possible << std::endl;
-            std::string d = {};
-            d += 'a' + this->en_passant_squares[this->ply].column;
-            d += '1' + this->en_passant_squares[this->ply].row;
-            std::cout << d << std::endl;
-
-            exit(-1);
-    }
     return is_legal;
 }
 
@@ -318,12 +290,11 @@ bool Board::is_draw()
 
 void Board::init()
 {   
-    init("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
+    init("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 }
 
 void Board::init(std::string s)
 {
-    std::cout << "--- INIT NEW BOARD WITH FEN: " << s <<std::endl;
     captureStack.reserve(32);
     
     std::string substring;
@@ -423,7 +394,6 @@ void Board::init(std::string s)
     
 
     std::string color_to_move_string = substrings[1];
-    std::cout<< "color to move: "<< color_to_move_string<<std::endl;
     if(color_to_move_string == "w"){
         this->color_to_move = Color::white;
     }
@@ -440,22 +410,29 @@ void Board::init(std::string s)
     }*/
     this->ply = 1;
     std::string castle_string = substrings[2];
+    this->ply_white_h_rook_moved = ply;
+    this->ply_black_h_rook_moved = ply;
+    this->ply_white_a_rook_moved = ply;
+    this->ply_black_a_rook_moved = ply;
+
+
+
     if(castle_string != "-"){
         for(auto& c : castle_string){
             switch (c)
             {
             case 'K':
-                this->ply_white_h_rook_moved = ply;
+                this->ply_white_h_rook_moved = -1;
                 break;
             case 'k':
-                this->ply_black_h_rook_moved = ply;
+                this->ply_black_h_rook_moved = -1;
                 break;
 
             case 'Q':
-                this->ply_white_a_rook_moved = ply;
+                this->ply_white_a_rook_moved = -1;
                 break;
             case 'q':
-                this->ply_black_a_rook_moved = ply;
+                this->ply_black_a_rook_moved = -1;
                 break;
             default:
                 break;
@@ -584,19 +561,33 @@ bool Board::do_uci_move(std::string s)
 
 bool Board::do_move(Move move)
 {   
-    
+    this->n_do_move++;
     
     this->ply++;
     
-    if(move.is_capture){
-        this->captureStack.push_back(board[move.end_square.row][move.end_square.column]);
-        board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
-        board[move.start_square.row][move.start_square.column] = blankPieceStack.back();
-        blankPieceStack.pop_back();
-        board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
-        board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+    if(!move.is_en_passant){
+        if (move.is_capture){
+            this->captureStack.push_back(board[move.end_square.row][move.end_square.column]);
+            board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
+            board[move.start_square.row][move.start_square.column] = blankPieceStack.back();
+            blankPieceStack.pop_back();
+            board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
+            board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+        }
+        else{
+            Piece* t = board[move.end_square.row][move.end_square.column];
+            board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
+            
+            board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
+            board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
+            
+            board[move.start_square.row][move.start_square.column] = t;
+            board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
+            board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+        }
     }
-    else{
+    else {
+        //Switch start and end pos
         Piece* t = board[move.end_square.row][move.end_square.column];
         board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
         
@@ -606,6 +597,21 @@ bool Board::do_move(Move move)
         board[move.start_square.row][move.start_square.column] = t;
         board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
         board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+        
+        if(move.color_moved_piece == Color::white){ 
+            this->captureStack.push_back(board[move.end_square.row-1][move.end_square.column]);
+            board[move.end_square.row-1][move.end_square.column] = blankPieceStack.back();
+            blankPieceStack.pop_back();
+            board[move.end_square.row-1][move.end_square.column]->square.row = move.end_square.row-1;
+            board[move.end_square.row-1][move.end_square.column]->square.column = move.end_square.column;
+        }
+        else{
+            this->captureStack.push_back(board[move.end_square.row+1][move.end_square.column]);
+            board[move.end_square.row+1][move.end_square.column] = blankPieceStack.back();
+            blankPieceStack.pop_back();
+            board[move.end_square.row+1][move.end_square.column]->square.row = move.end_square.row+1;
+            board[move.end_square.row+1][move.end_square.column]->square.column = move.end_square.column;       
+        }
     }
 
 
@@ -653,16 +659,7 @@ bool Board::do_move(Move move)
     
     if(move.moved_piece == Piecetype::pawn){
         if(abs(move.start_square.row-move.end_square.row)==2){
-            std::string d = {};
             en_passant_squares.push_back(Square(move.start_square.row+(move.end_square.row-move.start_square.row)/2, move.start_square.column));
-            d += 'a' + this->en_passant_squares[this->ply].column;
-            d += '1' + this->en_passant_squares[this->ply].row;
-            std::cout <<"Added EPS:"<< d << std::endl;
-
-            if (d == "a3"){ 
-                std::cout <<"Adding of a6 to eps in move:"<< d << std::endl;
-                move.print_move();
-            }   
         }
         else{
             en_passant_squares.push_back(Square(-10,-10));
@@ -677,22 +674,7 @@ bool Board::do_move(Move move)
         board[move.end_square.row][move.end_square.column] = new Piece(move.color_moved_piece, Piecetype::queen, Square(move.end_square.row, move.end_square.column));
     }
 
-    if(move.is_en_passant){
-        if(move.color_moved_piece == Color::white){
-            this->captureStack.push_back(board[move.end_square.row-1][move.end_square.column]);
-            board[move.end_square.row-1][move.end_square.column] = blankPieceStack.back();
-            blankPieceStack.pop_back();
-            board[move.end_square.row-1][move.end_square.column]->square.row = move.end_square.row-1;
-            board[move.end_square.row-1][move.end_square.column]->square.column = move.end_square.column;
-        }
-        else{
-            this->captureStack.push_back(board[move.end_square.row+1][move.end_square.column]);
-            board[move.end_square.row+1][move.end_square.column] = blankPieceStack.back();
-            blankPieceStack.pop_back();
-            board[move.end_square.row+1][move.end_square.column]->square.row = move.end_square.row+1;
-            board[move.end_square.row+1][move.end_square.column]->square.column = move.end_square.column;        
-        }
-    }
+    
 
     if(move.is_castle){
         if(move.end_square.column == 6){
@@ -732,7 +714,6 @@ bool Board::do_move(Move move)
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
     
-    HELPER_PRINT_EPS_STACK("END OF DO MOVE FUNCTION");
     
     
     return true;
@@ -754,46 +735,65 @@ bool Board::do_nullmove()
 
 bool Board::undo_move(Move move)
 {
-    
+    this->n_undo_move++;
     if(this->color_to_move == Color::black){
         this->color_to_move = Color::white;
     }
     else{
         this->color_to_move = Color::black;
     }
-    if(move.is_capture){
-        this->blankPieceStack.push_back(board[move.start_square.row][move.start_square.column]);
-        board[move.start_square.row][move.start_square.column] = board[move.end_square.row][move.end_square.column];
-        board[move.end_square.row][move.end_square.column] = this->captureStack.back();
-        this->captureStack.pop_back();
+    if(!move.is_en_passant){
+        if(move.is_capture){
+            this->blankPieceStack.push_back(board[move.start_square.row][move.start_square.column]);
+            board[move.start_square.row][move.start_square.column] = board[move.end_square.row][move.end_square.column];
+            board[move.end_square.row][move.end_square.column] = this->captureStack.back();
+            this->captureStack.pop_back();
+        }
+        else{
+            Piece* t = board[move.end_square.row][move.end_square.column];
+            board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
+            
+            board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
+            board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
+            
+            board[move.start_square.row][move.start_square.column] = t;
+            board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
+            board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+        }    
     }
     else{
-        Piece* t = board[move.end_square.row][move.end_square.column];
-        board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
+            //switch start and end
+            Piece* t = board[move.end_square.row][move.end_square.column];
+            board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
+            
+            board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
+            board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
+            
+            board[move.start_square.row][move.start_square.column] = t;
+            board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
+            board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+
+            if(move.color_moved_piece == Color::white){ 
+                this->blankPieceStack.push_back(board[move.end_square.row-1][move.end_square.column]);
+                board[move.end_square.row-1][move.end_square.column] = this->captureStack.back();
+                this->captureStack.pop_back();
+            }
+            else{ 
+                this->blankPieceStack.push_back(board[move.end_square.row+1][move.end_square.column]);
+                board[move.end_square.row+1][move.end_square.column] = this->captureStack.back();
+                this->captureStack.pop_back();
+            }
         
-        board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
-        board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
-        
-        board[move.start_square.row][move.start_square.column] = t;
-        board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
-        board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+            
     }
+    
     
 
     if(move.is_promotion){
         delete board[move.start_square.row][move.start_square.column];
         board[move.start_square.row][move.start_square.column] = new Piece(move.color_moved_piece, Piecetype::pawn, Square(move.start_square.row, move.start_square.column));
     }
-    if(move.is_en_passant){
-        if(move.color_moved_piece == Color::white){
-            this->blankPieceStack.push_back(board[move.end_square.row+1][move.end_square.column]);
-            board[move.end_square.row+1][move.end_square.column] = this->captureStack.back();
-        }
-        else{
-            this->blankPieceStack.push_back(board[move.end_square.row-1][move.end_square.column]);
-            board[move.end_square.row-1][move.end_square.column] = this->captureStack.back();        
-        }
-    }
+    
     if(move.is_castle){
         if(move.end_square.column == 6){
             Piece* r = board[move.end_square.row][5];
@@ -835,7 +835,6 @@ bool Board::undo_move(Move move)
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
 
-    HELPER_PRINT_EPS_STACK("END OF UNDO MOVE FUNCTION");
 
     this->ply--;
     return true;
@@ -855,16 +854,7 @@ bool Board::undo_nullmove()
 }
 
 void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int row, int column){
-    HELPER_PRINT_EPS_STACK("_");
 
-    std::cout << "STARTING SQUARE GENERATION WITH" << std::endl;
-    std::string d = {};
-    d += 'a' + this->en_passant_squares[this->ply-1].column;
-    d += '1' + this->en_passant_squares[this->ply-1].row;
-    std::cout << d << std::endl;
-
-    std::cout << print_board() << std::endl;
-    std::cout << this->ply << std::endl;
 
 
     switch (board[row][column]->type)
@@ -1320,14 +1310,6 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
 
                         if(valid_coordinates(row-1, column-1)){
                             if((board[row-1][column-1]->type != Piecetype::none && board[row-1][column-1]->color != color_to_move) || (en_passant_squares[ply-1].row == row-1 && en_passant_squares[ply-1].column == column -1)){
-                                std::cout << "(*)board in pawn move generation\n" << this->print_board() << std::endl;
-                                std::cout << "(*)can capture to bottom left " << (board[row-1][column-1]->type != Piecetype::none && board[row-1][column-1]->color != color_to_move) << std::endl;
-                                std::cout << "(*)can en passant to bottom left " <<(en_passant_squares[ply-1].row == row-1 && en_passant_squares[ply-1].column == column -1) << std::endl;
-                                std::string d = {};
-                                d += 'a' + this->en_passant_squares[this->ply-1].column;
-                                d += '1' + this->en_passant_squares[this->ply-1].row;
-                                std::cout  << "(*)en passant square "<< d << std::endl;
-                                //exit(-1);
                                 possibleSquares->push_back(new Square(row-1,column-1));
                             }
                         } 
