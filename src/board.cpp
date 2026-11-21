@@ -274,12 +274,7 @@ bool Board::is_checkmate()
 }
 
 bool Board::is_draw()
-{
-    return false;
-    
-    if(ply < 18){
-        return false;
-    }
+{    
     std::vector<Move>* moves = NULL;
 
     if(this->allMoves(moves)->size() != 0){

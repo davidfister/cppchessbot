@@ -17,10 +17,10 @@ int main(int argc, char *argv[]){
     else {
         if(strcmp(argv[1],"benchmark") == 0){
             Board board = Board();
-            board.init();
+            board.init("r2qk2r/pp1b1ppp/2n1pn2/2b1N3/2Np4/6P1/PP2PPBP/R1BQ1RK1 w kq - 1 10");
             Engine engine = Engine();
             engine.init(&board);
-            Move m = engine.find_best_move_minimax(5);
+            Move m = engine.find_best_move_minimax(4);
             board.do_move(m);
         }
         if(strcmp(argv[1],"time") == 0){
