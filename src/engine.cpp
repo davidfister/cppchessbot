@@ -144,7 +144,7 @@ Move Engine::find_best_move_minimax(int depth)
 double Engine::minimax_max(int depth,double alpha, double beta)
 {
 
-    if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
+    if(board->is_checkmate() == true || /*board->is_draw() == true || */ depth == 0){
         return this->evaluate_minimax(depth);
     }
 
@@ -178,7 +178,7 @@ double Engine::minimax_max(int depth,double alpha, double beta)
 double Engine::minimax_min(int depth,double alpha, double beta)
 {
 
-    if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
+    if(board->is_checkmate() == true || /*board->is_draw() == true || */ depth == 0){
         return this->evaluate_minimax(depth);
     }
 
@@ -211,9 +211,9 @@ double Engine::minimax_min(int depth,double alpha, double beta)
 
 double Engine::evaluate_minimax(int depth)
 {
-    if(board->is_draw()){
-        return 0.0;
-    }
+    //if(board->is_draw()){
+    //    return 0.0;
+    //}
     if(board->is_checkmate()){
         return board->color_to_move == Color::white ? -900 - depth : 900 + depth;
     }

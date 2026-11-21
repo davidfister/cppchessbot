@@ -73,6 +73,172 @@ int main(int argc, char *argv[]){
             }
             
         }
+        const int N = 100000000;
+        if(strcmp(argv[1],"testarray_2d") == 0){
+            Piece* board[8][8];
+            for(int row = 0; row < 8; row++){
+                for(int column = 0; column < 8; column++){
+                    if(row+column == 3){
+                        board[row][column] = new Piece(Color::white, Piecetype::pawn, Square(row,column));
+                    }
+                    else{
+                        board[row][column] = new Piece(Color::black, Piecetype::queen, Square(row,column));
+
+                    }
+                }
+            }    
+            int counter = 0;
+            for(int i = 0; i < N ; i++){
+                for(int row = 0; row < 8; row++){
+                    for(int column = 0; column < 8; column++)
+                    {
+                         if(board[row][column]->type == Piecetype::pawn){
+                            counter++;
+                         }
+                    }
+                }
+            }
+            std::cout << counter << std::endl;
+        }
+        if(strcmp(argv[1],"testarray_2d_directaccess") == 0){
+            Piecetype board[8][8];
+            for(int row = 0; row < 8; row++){
+                for(int column = 0; column < 8; column++){
+                    if(row+column == 3){
+                        board[row][column] = Piecetype::pawn;
+                    }
+                    else{
+                        board[row][column] = Piecetype::queen;
+
+                    }
+                }
+            }    
+            int counter = 0;
+            for(int i = 0; i < N ; i++){
+                for(int row = 0; row < 8; row++){
+                    for(int column = 0; column < 8; column++)
+                    {
+                         if(board[row][column] == Piecetype::pawn){
+                            counter++;
+                         }
+                    }
+                }
+            }
+            std::cout << counter << std::endl;
+        }
+        if(strcmp(argv[1],"testarray_flat") == 0){
+            Piece* board[64];
+            for(int row = 0; row < 8; row++){
+                for(int column = 0; column < 8; column++){
+                    if(row+column == 3){
+                        board[row*8+column] = new Piece(Color::white, Piecetype::pawn, Square(row,column));
+                    }
+                    else{
+                        board[row*8+column] = new Piece(Color::black, Piecetype::queen, Square(row,column));
+
+                    }
+                }
+            }    
+            int counter = 0;
+            for(int i = 0; i < N ; i++){
+                for(int row = 0; row < 8; row++){
+                    for(int column = 0; column < 8; column++)
+                    {
+                         if(board[row*8+column]->type == Piecetype::pawn){
+                            counter++;
+                         }
+                    }
+                }
+            }
+            std::cout << counter << std::endl;
+        }
+        
+        
+        if(strcmp(argv[1],"testarray_flat_directaccess") == 0){
+            Piecetype board[64];
+            for(int row = 0; row < 8; row++){
+                for(int column = 0; column < 8; column++){
+                    if(row+column == 3){
+                        board[row*8+column] = Piecetype::pawn;
+                    }
+                    else{
+                        board[row*8+column] = Piecetype::queen;
+
+                    }
+                }
+            }   
+            int counter = 0;
+            for(int i = 0; i < N ; i++){
+                for(int row = 0; row < 8; row++){
+                    for(int column = 0; column < 8; column++)
+                    {
+                         if(board[row*8+column] == Piecetype::pawn){
+                            counter++;
+                         }
+                    }
+                }
+            }
+            std::cout << counter << std::endl;
+        }
+        if(strcmp(argv[1],"testarray_flat_oneloop") == 0){
+            Piece* board[64];
+            for(int row = 0; row < 8; row++){
+                for(int column = 0; column < 8; column++){
+                    if(row+column == 3){
+                        board[row*8+column] = new Piece(Color::white, Piecetype::pawn, Square(row,column));
+                    }
+                    else{
+                        board[row*8+column] = new Piece(Color::black, Piecetype::queen, Square(row,column));
+
+                    }
+                }
+            }    
+            int counter = 0;
+            for(int i = 0; i < N ; i++){
+                for(int square = 0; square < 64; square++){
+                    
+                    if(board[square]->type == Piecetype::pawn){
+                    counter++;
+                    }
+                    
+                }
+            }
+            std::cout << counter << std::endl;
+        }
+        if(strcmp(argv[1],"testarray_flat_oneloop_directaccess") == 0){
+            Piecetype board[64];
+            for(int row = 0; row < 8; row++){
+                for(int column = 0; column < 8; column++){
+                    if(row+column == 3){
+                        board[row*8+column] = Piecetype::pawn;
+                    }
+                    else{
+                        board[row*8+column] = Piecetype::queen;
+
+                    }
+                }
+            }  
+            int counter = 0;
+            int row = 0;
+            int col = 0;
+
+            for(int i = 0; i < N ; i++){
+                for(int square = 0; square < 64; square++){
+                    
+                    if(board[square] == Piecetype::pawn){
+                        counter++;
+                        row = square%8;
+                        col = square/8;
+                    }
+                    
+                }
+            }
+            std::cout << counter << std::endl;
+            std::cout << row << std::endl;
+            std::cout << col << std::endl;
+
+
+        }
     }
 
     return 0;

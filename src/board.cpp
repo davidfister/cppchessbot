@@ -12,6 +12,7 @@ bool Board::valid_coordinates(int row, int column)
     if(row < 0 || row > 7){
         return false;
     }
+    
     return true;
 }
 
@@ -493,7 +494,8 @@ std::string Board::get_fen(){
     std::string fen_string = "";
     int empty_counter = 0;
     char offset = 0;
-
+    fen_string.reserve(128);
+    
     for(int i = 7; i >= 0; i--){
         for(int j = 0; j < 8; j++){
             offset = 0;
@@ -501,28 +503,28 @@ std::string Board::get_fen(){
                 offset = ('a' - 'A');
             }
             if(empty_counter != 0 && board[i][j]->type != Piecetype::none){
-                fen_string += std::to_string(empty_counter);
+                fen_string.push_back(empty_counter);
                 empty_counter = 0;
 
             }
             switch(board[i][j]->type){
                 case Piecetype::pawn:
-                    fen_string += 'p' - offset;
+                    fen_string.push_back('p' - offset);
                 break;
                 case Piecetype::knight:
-                    fen_string += 'n' - offset;
+                    fen_string.push_back('n' - offset);
                 break;
                 case Piecetype::bishop:
-                    fen_string += 'b' - offset;
+                    fen_string.push_back('b' - offset);
                 break;
                 case Piecetype::rook:
-                    fen_string += 'r' - offset;
+                    fen_string.push_back('r' - offset);
                 break;
                 case Piecetype::queen:
-                    fen_string += 'q' - offset;
+                    fen_string.push_back('q' - offset);
                 break;
                 case Piecetype::king:
-                    fen_string += 'k' - offset;
+                    fen_string.push_back('k' - offset);
                 break;
                 default:
                     empty_counter++;                    
@@ -531,15 +533,21 @@ std::string Board::get_fen(){
             };   
         }
         if(empty_counter != 0){
-            fen_string += std::to_string(empty_counter);
+            fen_string.push_back(empty_counter);
         }
 
-        fen_string += "/";
+        fen_string.push_back('/');
         empty_counter = 0;
     }
     fen_string.pop_back();
-    fen_string += " ";
-    fen_string += this->color_to_move == Color::white ? "w" : "b";
+    
+    fen_string.push_back(' ');
+    if(this->color_to_move == Color::white){
+        fen_string.push_back('w');
+    }
+    else{
+        fen_string.push_back('b');
+    }
     return fen_string;
 }
 
@@ -1500,7 +1508,7 @@ std::vector<Move> *Board::allMoves(std::vector<Move> *allMovesList){
     }
     
     allMovesList = new std::vector<Move>;
-    allMovesList->reserve(64);
+    allMovesList->reserve(32);
     
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++)
@@ -1523,6 +1531,6 @@ std::vector<Move> *Board::allMoves(std::vector<Move> *allMovesList){
         }
     
     }
-    allmoves_map.insert({fen,allMovesList});
+    //allmoves_map.insert({fen,allMovesList});
     return allMovesList;
 }

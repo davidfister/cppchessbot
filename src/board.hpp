@@ -9,6 +9,7 @@
 #include <chrono>
 #include <vector>
 #include <map>
+#include <unordered_map>
 
 
 class Board
@@ -33,8 +34,8 @@ public:
     void init();
     void init(std::string s);
 
-    std::map<std::string, int> allmoves_fen_map;// working
-    std::map<std::string, std::vector<Move>*> allmoves_map;// working
+    std::unordered_map<std::string, int> allmoves_fen_map;// working
+    std::unordered_map<std::string, std::vector<Move>*> allmoves_map;// working
 
     
     std::vector<Move>* allMoves(std::vector<Move>* allMovesList);
