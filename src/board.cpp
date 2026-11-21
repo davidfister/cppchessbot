@@ -1170,6 +1170,7 @@ void Board::generate_possible_squares(int row, int column){
                                     if(is_valid_dest_square(dest_row, dest_column, color_to_move)){
                                         this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
                                         this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                        this->possibleSquaresCounter += 1;
                                     }
                                 }
                             }
