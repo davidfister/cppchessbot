@@ -848,7 +848,7 @@ bool Board::undo_nullmove()
     return true;
 }
 
-void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int row, int column){
+void Board::generate_possible_squares(int row, int column){
 
 
 
@@ -874,7 +874,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column-offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_top_left = false;
                                     }
@@ -893,7 +895,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column+offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_top_right = false;
                                     }
@@ -913,7 +917,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column-offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_bottom_left = false;
                                     }
@@ -933,7 +939,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column+offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                        this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_bottom_right = false;
                                     }
@@ -953,7 +961,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_top = false;
                                     }
@@ -973,7 +983,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_bottom = false;
                                     }
@@ -993,7 +1005,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column-offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_left = false;
                                     }
@@ -1013,7 +1027,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column+offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_right = false;
                                     }
@@ -1052,7 +1068,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_top = false;
                                     }
@@ -1072,7 +1090,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_bottom = false;
                                     }
@@ -1092,7 +1112,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column-offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_left = false;
                                     }
@@ -1112,7 +1134,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column+offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_right = false;
                                     }
@@ -1144,7 +1168,8 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                                 int dest_column = column + k*(3-j);
                                 if(valid_coordinates(dest_row, dest_column)){
                                     if(is_valid_dest_square(dest_row, dest_column, color_to_move)){
-                                        possibleSquares->push_back(new Square(dest_row, dest_column));
+                                        this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                        this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
                                     }
                                 }
                             }
@@ -1169,7 +1194,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column-offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_top_left = false;
                                     }
@@ -1189,7 +1216,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column+offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_top_right = false;
                                     }
@@ -1209,7 +1238,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column-offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_bottom_left = false;
                                     }
@@ -1229,7 +1260,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                             dest_column = column+offset;
                             if(valid_coordinates(dest_row, dest_column)){
                                 if(is_valid_dest_square(dest_row,dest_column,color_to_move)){
-                                    possibleSquares->push_back(new Square(dest_row,dest_column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = dest_row;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = dest_column;
+                                    this->possibleSquaresCounter += 1;
                                     if(board[dest_row][dest_column]->type != Piecetype::none){
                                         direction_bottom_right = false;
                                     }
@@ -1258,54 +1291,70 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                     if(this->color_to_move == Color::white){
                         if(valid_coordinates(row+1, column)){
                             if(board[row+1][column]->type == Piecetype::none){
-                                possibleSquares->push_back(new Square(row+1,column));
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2] = row+1;
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column;
+                                this->possibleSquaresCounter += 1;
                             }
                         }        
                         
                         if(row == 1 && valid_coordinates(row+2, column)){
                             if(board[row+1][column]->type == Piecetype::none){
                                 if(board[row+2][column]->type == Piecetype::none){
-                                    possibleSquares->push_back(new Square(row+2,column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = row+2;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column;
+                                    this->possibleSquaresCounter += 1;
                                 }
                             }  
                         }   
 
                         if(valid_coordinates(row+1, column+1)){
                             if((board[row+1][column+1]->type != Piecetype::none && board[row+1][column+1]->color != color_to_move) || (en_passant_squares[ply-1].row == row+1 && en_passant_squares[ply-1].column == column +1)){
-                                possibleSquares->push_back(new Square(row+1,column+1));
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2] = row+1;
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column+1;
+                                this->possibleSquaresCounter += 1;
                             }
                         }  
 
                         if(valid_coordinates(row+1, column-1)){
                             if((board[row+1][column-1]->type != Piecetype::none && board[row+1][column-1]->color != color_to_move) || (en_passant_squares[ply-1].row == row+1 && en_passant_squares[ply-1].column == column -1)){
-                                possibleSquares->push_back(new Square(row+1,column-1));
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2] = row+1;
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column-1;
+                                this->possibleSquaresCounter += 1;
                             }
                         }  
                     }
                     else{
                         if(valid_coordinates(row-1, column)){
                             if(board[row-1][column]->type == Piecetype::none){
-                                possibleSquares->push_back(new Square(row-1,column));
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2] = row-1;
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column;
+                                this->possibleSquaresCounter += 1;
                             }
                         }        
                         
                         if(row == 6 && valid_coordinates(row-2, column)){
                             if(board[row-1][column]->type == Piecetype::none){
                                 if(board[row-2][column]->type == Piecetype::none){
-                                    possibleSquares->push_back(new Square(row-2,column));
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2] = row-2;
+                                    this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column;
+                                    this->possibleSquaresCounter += 1;
                                 }
                             }  
                         }   
 
                         if(valid_coordinates(row-1, column+1)){
                             if((board[row-1][column+1]->type != Piecetype::none && board[row-1][column+1]->color != color_to_move)|| (en_passant_squares[ply].row == row-1 && en_passant_squares[ply].column == column +1)){
-                                possibleSquares->push_back(new Square(row-1,column+1));
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2] = row-1;
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column+1;
+                                this->possibleSquaresCounter += 1;
                             }
                         }  
 
                         if(valid_coordinates(row-1, column-1)){
                             if((board[row-1][column-1]->type != Piecetype::none && board[row-1][column-1]->color != color_to_move) || (en_passant_squares[ply-1].row == row-1 && en_passant_squares[ply-1].column == column -1)){
-                                possibleSquares->push_back(new Square(row-1,column-1));
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2] = row-1;
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column-1;
+                                this->possibleSquaresCounter += 1;
                             }
                         } 
                     }
@@ -1320,45 +1369,61 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                 if(board[row][column]->color == this->color_to_move){
                     if(valid_coordinates(row-1,column-1)){
                         if(is_valid_dest_square(row-1,column-1,color_to_move)){
-                            possibleSquares->push_back(new Square(row-1,column-1));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row-1;
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column-1;
+                            this->possibleSquaresCounter += 1;
                         }
                     }
                     if(valid_coordinates(row+1,column-1)){
                         if(is_valid_dest_square(row+1,column-1,color_to_move)){
-                            possibleSquares->push_back(new Square(row+1,column-1));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row+1;
+                                this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column-1;
+                                this->possibleSquaresCounter += 1;
                         }
                     }
 
                     if(valid_coordinates(row-1,column+1)){
                         if(is_valid_dest_square(row-1,column+1,color_to_move)){
-                            possibleSquares->push_back(new Square(row-1,column+1));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row-1;
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column+1;
+                            this->possibleSquaresCounter += 1;
                         }
                     }
                     if(valid_coordinates(row+1,column+1)){
                         if(is_valid_dest_square(row+1,column+1,color_to_move)){
-                            possibleSquares->push_back(new Square(row+1,column+1));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row+1;
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column+1;
+                            this->possibleSquaresCounter += 1;
                         }
                     }
                     
                     if(valid_coordinates(row-1,column)){
                         if(is_valid_dest_square(row-1,column,color_to_move)){
-                            possibleSquares->push_back(new Square(row-1,column));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row-1;
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column;
+                            this->possibleSquaresCounter += 1;
                         }
                     }
                     if(valid_coordinates(row+1,column)){
                         if(is_valid_dest_square(row+1,column,color_to_move)){
-                            possibleSquares->push_back(new Square(row+1,column));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row+1;
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column;
+                            this->possibleSquaresCounter += 1;
                         }
                     }
 
                     if(valid_coordinates(row,column-1)){
                         if(is_valid_dest_square(row,column-1,color_to_move)){
-                            possibleSquares->push_back(new Square(row,column-1));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row;
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column-1;
+                            this->possibleSquaresCounter += 1;
                         }
                     }
                     if(valid_coordinates(row,column+1)){
                         if(is_valid_dest_square(row,column+1,color_to_move)){
-                            possibleSquares->push_back(new Square(row,column+1));
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = row;
+                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = column+1;
+                            this->possibleSquaresCounter += 1;
                         }
                     }
                     if(color_to_move == Color::white){
@@ -1367,7 +1432,10 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                                 if(!is_square_attacked(Square(0,4),Color::white)){
                                     if(board[0][3]->type == Piecetype::none && !is_square_attacked(Square(0,3), Color::white)){
                                         if(board[0][2]->type == Piecetype::none && board[0][1]->type == Piecetype::none){
-                                            possibleSquares->push_back(new Square(0,2)); // no need to check if c1 is in check because it gets tested on move gen
+                                            // no need to check if c1 is in check because it gets tested on move gen
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = 0;
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = 2;
+                                            this->possibleSquaresCounter += 1;
                                         }
                                     }
                                 }
@@ -1376,7 +1444,10 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                                 if(!is_square_attacked(Square(0,4),Color::white)){
                                     if(board[0][5]->type == Piecetype::none && !is_square_attacked(Square(0,5), Color::white)){
                                         if(board[0][6]->type == Piecetype::none){
-                                            possibleSquares->push_back(new Square(0,6)); // no need to check if g1 is in check because it gets tested on move gen
+                                            // no need to check if g1 is in check because it gets tested on move gen
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = 0;
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = 6;
+                                            this->possibleSquaresCounter += 1;
                                         }
                                     }
                                 }
@@ -1389,7 +1460,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                                 if(!is_square_attacked(Square(7,4),Color::black)){
                                     if(board[7][3]->type == Piecetype::none && !is_square_attacked(Square(7,3), Color::black)){
                                         if(board[7][2]->type == Piecetype::none && board[7][1]->type == Piecetype::none){
-                                            possibleSquares->push_back(new Square(7,2)); // no need to check if c8 is in check because it gets tested on move gen    
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = 7;
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = 2;
+                                            this->possibleSquaresCounter += 1;
                                         }
                                     }
                                 }
@@ -1398,8 +1471,9 @@ void Board::generate_possible_squares(std::vector<Square*> *possibleSquares, int
                                 if(!is_square_attacked(Square(7,4),Color::black)){
                                     if(board[7][5]->type == Piecetype::none && !is_square_attacked(Square(7,5), Color::black)){
                                         if(board[7][6]->type == Piecetype::none){
-                                            possibleSquares->push_back(new Square(7,6)); // no need to check if g8 is in check because it gets tested on move gen
-                                        }
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2] = 7;
+                                            this->possibleSquaresArray[this->possibleSquaresCounter*2+1] = 6;
+                                            this->possibleSquaresCounter += 1;                                        }
                                     }
                                 }
                             }
@@ -1426,15 +1500,15 @@ std::vector<Move> *Board::allMoves(std::vector<Move> *allMovesList){
     
     allMovesList = new std::vector<Move>;
     allMovesList->reserve(64);
+    
     for(int row = 0; row < 8; row++){
         for(int column = 0; column < 8; column++)
         {
-            std::vector<Square*> possibleSquares{};
+            possibleSquaresCounter = 0;
+            generate_possible_squares(row, column);
 
-            generate_possible_squares(&possibleSquares, row, column);
-
-            for(Square* s : possibleSquares){
-                Move m = Move(Square(row, column), *s, board[row][column]->color, board[row][column]->type, board[s->row][s->column]->type);
+            for(int i = 0; i < possibleSquaresCounter;i++){
+                Move m = Move(Square(row, column), Square(possibleSquaresArray[i*2], possibleSquaresArray[i*2+1]), board[row][column]->color, board[row][column]->type, board[possibleSquaresArray[i*2]][possibleSquaresArray[i*2+1]]->type);
 
                 if(is_legal_move(m)){
                     if(m.is_capture == true){

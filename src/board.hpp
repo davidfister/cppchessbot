@@ -50,7 +50,10 @@ public:
     bool undo_move(Move move);
     bool undo_nullmove();
 
-    void generate_possible_squares(std::vector<Square *> *possibleSquares, int row, int column);
+    void generate_possible_squares(int row, int column);
+    int possibleSquaresArray[128] {0}; 
+    int possibleSquaresCounter = 0;
+
 
     bool is_square_attacked(Square s, Color attackedColor);
     bool is_checkmate();
