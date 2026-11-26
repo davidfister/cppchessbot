@@ -52,6 +52,22 @@ Move::Move(Square start_square, Square end_square, Color color_moved_piece, Piec
     }
 }
 
+/*Move Move::clone()
+{
+    Move m = Move();
+    m.start_square = this->start_square;
+    m.end_square = this->end_square;
+    m.moved_piece = this->moved_piece;
+    m.captured_piece = this->captured_piece;
+    m.color_moved_piece = this->color_moved_piece;
+    m.is_castle = this->is_castle;
+    m.is_en_passant = this->is_en_passant;
+    m.is_capture = this->is_capture;
+    m.is_promotion = this->is_promotion;
+
+    return m;
+}*/
+
 void Move::print_move() {
     std::cout<<to_string()<<std::endl;
 }

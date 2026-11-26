@@ -9,6 +9,7 @@
 
 class Piece{
 public:
+    Piece();
     Piece(Color color, Piecetype type, Square square);
     Color color; 
     Piecetype type;

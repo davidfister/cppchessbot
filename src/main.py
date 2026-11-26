@@ -12,7 +12,7 @@ with open('fens.csv', 'w', newline='') as csvfile:
     
     for n in range(1000):
         board = chess.Board()
-        for i in range(20):
+        for i in range(100):
             spamwriter.writerow([board.fen()] + [board.legal_moves.count()])
             
             if board.legal_moves.count() != 0:

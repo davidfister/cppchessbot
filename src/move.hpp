@@ -10,6 +10,7 @@ class Move {
 public:
   Move();
   Move(Square start_square, Square end_square, Color color_moved_piece, Piecetype moved_piece, Piecetype captured_piece);
+  //Move clone();
   Square start_square;
   Square end_square;
   Piecetype moved_piece;

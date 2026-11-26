@@ -9,117 +9,21 @@ bool Engine::init(Board *board)
 }
 
 
-
-// Move Engine::find_best_move_negamax(int depth)
-// {
-//     std::list<Move> mvs = this->board->allMoves();
-
-//     Move best_move = this->board->allMoves().front();
-//     double best_eval = -1000;
-
-//     for(Move m : mvs){
-//         board->do_move(m);
-//         double eval_m = negamax(depth, -1000,1000);
-//         if(eval_m > best_eval){
-//             best_move = m;
-//         }
-//         board->undo_move(m);
-//     }
-
-//     return best_move;
-// }
-
-
-// double Engine::negamax(int depth, double alpha, double beta)
-// {
-//     if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
-//         return this->evaluate();
-//     }
-
-//     double eval = -1000;
-//     std::list<Move>* moves = new std::list<Move>;
-
-//     for (Move m : *board->allMoves(moves)){
-//         board->do_move(m);
-//         eval = std::max(eval, -negamax(depth-1,-beta, -alpha ));
-//         alpha = std::max(alpha, eval);
-//         if(alpha >= beta){
-//             benchmark_cutoffs++;
-//             board->undo_move(m);
-//             break;
-//         }
-//         board->undo_move(m);
-//     }
-//     return eval;
-// }
-
-// double Engine::evaluate()
-// {
-//     if(board->is_draw()){
-//         return 0.0;
-//     }
-//     if(board->is_checkmate()){
-//         return -1000;
-//     }
-    
-//     double evaluation = 0;
-   
-//     for(int row = 0; row < 8; row++){
-//         for(int column = 0; column < 8; column++){
-//             Piece* p = board->board[row][column];
-//             switch (p->type)
-//             {
-
-//             case Piecetype::pawn:
-//             {
-//                 evaluation += p->color == Color::white ? 1 + p->square.row*0.1 : -1 - (7-p->square.row)*0.1;
-//                 break;
-//             }
-//             case Piecetype::knight:
-//             {
-//                 evaluation += p->color == Color::white ? 3 : -3;
-//                 break;
-//             }
-//             case Piecetype::bishop:
-//             {
-//                 evaluation += p->color == Color::white ? 3 : -3;
-//                 break;
-//             }
-//             case Piecetype::rook:
-//             {
-//                 evaluation += p->color == Color::white ? 5 : -5;
-//                 break;
-//             }
-//             case Piecetype::queen:
-//             {
-//                 evaluation += p->color == Color::white ? 9 : -9;
-//                 break;
-//             }
-//             default:
-//                 break;      
-//             }
-//         }
-//     }
-
-//     return (board->color_to_move == Color::black) ? -evaluation : evaluation;
-// }
-
-
 Move Engine::find_best_move_minimax(int depth)
 {
 
-    std::vector<Move>* moves = NULL;
-    moves = board->allMoves(moves);
-    Move bestMove = moves->front();
+    std::vector<Move> moves;
+    board->allMoves(&moves);
+    Move bestMove = moves.front();
 
     //std::cout<<board->print_board()<<std::endl;
     //std::cout<<board->get_fen()<<std::endl;
 
 
 
-    double alpha = -1500;
-    double beta = 1500;
-    for(Move m : *moves){
+    double alpha = -150000;
+    double beta = 150000;
+    for(Move m : moves){
         board->do_move(m);
         double e;
         if(board->color_to_move == Color::black){
@@ -136,22 +40,25 @@ Move Engine::find_best_move_minimax(int depth)
                 bestMove = m;
             }
         }
+
         board->undo_move(m);
     }
+
     return bestMove;
 }
 
 double Engine::minimax_max(int depth,double alpha, double beta)
 {
 
-    if(board->is_checkmate() == true || /*board->is_draw() == true || */ depth == 0){
+    if(board->is_checkmate() == true || board->is_draw() == true || depth == 0){
         return this->evaluate_minimax(depth);
     }
 
-    std::vector<Move>* moves = NULL;
-    moves = board->allMoves(moves);
-    for (Move m : *moves){
+    std::vector<Move> moves;
+    board->allMoves(&moves);
+    for (Move m : moves){
         board->do_move(m);
+        
         double eval = minimax_min(depth-1, alpha, beta);
         
         /*if(m.is_capture && depth == 1){
@@ -169,22 +76,26 @@ double Engine::minimax_max(int depth,double alpha, double beta)
         if(eval > alpha){
             alpha = eval;
         }
-        
+
         board->undo_move(m);
     }
+
+
     return alpha;
 }
 
 double Engine::minimax_min(int depth,double alpha, double beta)
 {
 
-    if(board->is_checkmate() == true || /*board->is_draw() == true || */ depth == 0){
+    if(board->is_checkmate() == true || board->is_draw() == true ||  depth == 0){
         return this->evaluate_minimax(depth);
     }
 
-    std::vector<Move>* moves = NULL;
-    for (Move m : *board->allMoves(moves)){
+    std::vector<Move> moves;
+     board->allMoves(&moves);
+    for (Move m : moves){
         board->do_move(m);
+        
         double eval = minimax_max(depth-1, alpha, beta);
         
         /*if(m.is_capture && depth == 1){
@@ -205,17 +116,18 @@ double Engine::minimax_min(int depth,double alpha, double beta)
 
         board->undo_move(m);
     }
+
     return beta;
 }
 
 
-double Engine::evaluate_minimax(int depth)
+int Engine::evaluate_minimax(int depth)
 {
-    //if(board->is_draw()){
-    //    return 0.0;
-    //}
+    if(board->is_draw()){
+        return 0;
+    }
     if(board->is_checkmate()){
-        return board->color_to_move == Color::white ? -900 - depth : 900 + depth;
+        return board->color_to_move == Color::white ? -90000 - depth : 90000 + depth;
     }
     
     double evaluation = 0;
@@ -228,46 +140,50 @@ double Engine::evaluate_minimax(int depth)
 
             case Piecetype::pawn:
             {
-                evaluation += p->color == Color::white ? 1.0 : -(1.0) ;
+                evaluation += p->color == Color::white ? 100 : -100 ;
                 break;
             }
             case Piecetype::knight:
             {
-                evaluation += p->color == Color::white ? 3.0 : -(3.0);
+                evaluation += p->color == Color::white ? 300 : -300;
                 break;
             }
             case Piecetype::bishop:
             {
-                evaluation += p->color == Color::white ? 3.0 : -(3.0);
+                evaluation += p->color == Color::white ? 300 : -300;
                 break;
             }
             case Piecetype::rook:
             {
-                evaluation += p->color == Color::white ? 5.0 : -(5.0);
+                evaluation += p->color == Color::white ? 500 : -500;
                 break;
             }
             case Piecetype::queen:
             {
-                evaluation += p->color == Color::white ? 9.0 : -(9.0);
+                evaluation += p->color == Color::white ? 900 : -900;
                 break;
             }
             default:
                 break;      
             }
+            int i = 1;
+            if(p->type == Piecetype::king){
+                i = -1;
+            }
             if(p->color == Color::white){
-                 evaluation += row*0.1;
+                 evaluation += row*10 * i;
             }
             else if(p->color == Color::black){
-                evaluation -= (7-row)*0.1;
+                evaluation -= (7-row)*10 * i;
             }
         }
     }
 
     if(board->is_white_castled){
-        evaluation += 0.5;
+        evaluation += 50;
     }
     if(board->is_black_castled){
-        evaluation -= 0.5;
+        evaluation -= 50;
     }
     return evaluation;
 }

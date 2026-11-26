@@ -48,3 +48,5 @@ lichess-bot/
 
 #Flamegraph
 FlameGraph/
+
+src/catch2

@@ -29,8 +29,10 @@ class Board
 
 //TODO: For benchmark reasons all functions public. Undo
 public:
-    int n_do_move = 0;
-    int n_undo_move = 0;
+    long n_do_move = 0;
+    long n_undo_move = 0;
+    long is_square_attacked_cnt = 0;
+
     void init();
     void init(std::string s);
 
@@ -65,6 +67,18 @@ public:
     bool is_valid_dest_square(int row, int column, Color color_of_moving_piece);
     bool is_legal_move(Move move);
     bool is_legal_nullmove();
+    bool get_bitboard(int row, int column);
+    bool print_bitboard();
+    bool set_bitboard(int row, int column);
+    bool unset_bitboard(int row, int column);
+    
+    bool get_bitboard_piece(int row, int column, Piecetype piecetype, Color color);
+    bool set_bitboard_piece(int row, int column, Piecetype piecetype, Color color);
+    bool unset_bitboard_piece(int row, int column, Piecetype piecetype, Color color);
+
+    bool update_bitboard(Move* move);
+    bool update_bitboard_undo(Move* move);
+
 
     Color color_to_move;
     bool is_white_castled = false; //TODO: OMIT? is only used for compute
@@ -80,7 +94,9 @@ public:
 
 
     Piece* board[8][8]; //[row]][column]
-
+    int64_t bitboard_occupied = 0x0000000000000000LL; // 
+    int64_t bitboard_piece_white[6] = {0};
+    int64_t bitboard_piece_black[6] = {0};
 };
 
 #endif

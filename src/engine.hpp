@@ -13,7 +13,7 @@ public:
     double minimax_min(int depth,double alpha, double beta);
 
     double evaluate();
-    double evaluate_minimax(int depth);
+    int evaluate_minimax(int depth);
 
     Move find_best_move_negamax(int depth);
     Move find_best_move_minimax(int depth);

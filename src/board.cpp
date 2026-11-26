@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include "piecetypes.hpp"
 #include <iostream>
+#include <bits/stdc++.h>
 
 
 bool Board::valid_coordinates(int row, int column)
@@ -28,6 +29,112 @@ bool Board::is_valid_dest_square(int row, int column, Color color_of_moving_piec
 
     return true;
 }
+
+bool Board::get_bitboard(int row, int column){
+    if((this->bitboard_occupied & (0x8000000000000000LL >> (row*8 + column))) != 0x0000000000000000LL){
+        return true;
+    }
+    return false;
+}
+
+bool Board::print_bitboard(){
+
+    std::cout << "---" << std::endl;
+
+    for(int i = 0; i < 8; i++){
+        std::cout << std::bitset<8>(this->bitboard_occupied >> i*8) << std::endl;
+    }
+
+    std::cout << "---" << std::endl;
+
+    return true;
+}
+
+
+bool Board::set_bitboard(int row, int column){
+    this->bitboard_occupied = this->bitboard_occupied | ((0x8000000000000000LL >> (row*8 + column)));
+    return true;
+
+}
+bool Board::unset_bitboard(int row, int column){
+    this->bitboard_occupied = this->bitboard_occupied ^ ((0x8000000000000000LL >> (row*8 + column)));
+    return true;
+
+}
+
+bool Board::get_bitboard_piece(int row, int column, Piecetype piecetype, Color color){
+    if(color == Color::white){
+        if((this->bitboard_piece_white[piecetype] & ((0x8000000000000000LL >> (row*8 + column)))) != 0x0000000000000000LL){
+            return true;
+        }
+    }
+    else{
+        if((this->bitboard_piece_black[piecetype] & ((0x8000000000000000LL >> (row*8 + column)))) != 0x0000000000000000LL){
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Board::set_bitboard_piece(int row, int column, Piecetype piecetype, Color color){
+    set_bitboard(row, column);
+
+    if(color == Color::white){
+        this->bitboard_piece_white[piecetype] = this->bitboard_piece_white[piecetype] | ((0x8000000000000000LL >> (row*8 + column)));
+        return true;
+    }
+    else{
+        this->bitboard_piece_black[piecetype] = this->bitboard_piece_black[piecetype] | ((0x8000000000000000LL >> (row*8 + column)));
+        return true;
+    }
+}
+
+bool Board::unset_bitboard_piece(int row, int column, Piecetype piecetype, Color color){
+    unset_bitboard(row, column);
+    if(color == Color::white){
+        this->bitboard_piece_white[piecetype] = this->bitboard_piece_white[piecetype] ^ ((0x8000000000000000LL >> (row*8 + column)));
+        return true;
+    }
+    else{
+        this->bitboard_piece_black[piecetype] = this->bitboard_piece_black[piecetype] ^ ((0x8000000000000000LL >> (row*8 + column)));
+        return true;
+    }
+}
+
+
+//Castle and en passent currently handled in do_move/undo_move
+bool Board::update_bitboard(Move* move){
+    //board[0][0] :> a1
+    //10000000000000... only bottom left accepted
+    
+    //turn off start
+    set_bitboard_piece(move->end_square.row, move->end_square.column, move->moved_piece, move->color_moved_piece);
+
+    //turn on dest
+    unset_bitboard_piece(move->start_square.row, move->start_square.column, move->moved_piece, move->color_moved_piece);
+
+
+
+    return true;
+}
+bool Board::update_bitboard_undo(Move* move){
+    //board[0][0] :> a1
+    //10000000000000... only bottom left accepted
+
+    //turn off start
+    set_bitboard_piece(move->start_square.row, move->start_square.column, move->moved_piece, move->color_moved_piece);
+    unset_bitboard_piece(move->end_square.row, move->end_square.column, move->moved_piece, move->color_moved_piece);
+
+    if(move->is_capture){
+        set_bitboard_piece(move->end_square.row, move->end_square.column, this->board[move->end_square.row][move->end_square.column]->type, this->board[move->end_square.row][move->end_square.column]->color);
+    }
+
+    
+
+    //turn on dest
+    return true;
+}
+
 
 bool Board::is_legal_move(Move move)
 {    
@@ -249,12 +356,13 @@ bool Board::is_checkmate()
     if(is_legal_nullmove()){
         return false;
     }
-    
-    std::vector<Move>* moves = NULL;
 
-    if(this->allMoves(moves)->size() != 0){
+    std::vector<Move> moves;
+
+    if(this->allMoves(&moves)->size() != 0){
         return false;
     }
+
 
     //Piece* currentKing = this->color_to_move == Color::white ? whiteKing : blackKing;
     /*int row;
@@ -275,12 +383,14 @@ bool Board::is_checkmate()
 }
 
 bool Board::is_draw()
-{    
-    std::vector<Move>* moves = NULL;
+{   
+    //return false;
+    std::vector<Move> moves;
 
-    if(this->allMoves(moves)->size() != 0){
+    if(this->allMoves(&moves)->size() != 0){
         return false;
     }
+
     return is_legal_nullmove();
 }
 
@@ -340,7 +450,10 @@ void Board::init(std::string s)
                 else{
                     blackKing = board[row][col];
                 }
+                set_bitboard_piece(row,col,Piecetype::king, color);
+
                 blankPieceStack.push_back(new Piece(Color::clear, Piecetype::none ,Square(row,col)));
+                
                 col++;
 
 
@@ -350,6 +463,8 @@ void Board::init(std::string s)
                 color = (c == 'R') ? Color::white : Color::black;
                 board[row][col] = new Piece(color, Piecetype::rook, Square(row,col));
                 blankPieceStack.push_back(new Piece(Color::clear, Piecetype::none ,Square(row,col)));
+                set_bitboard_piece(row,col,Piecetype::rook, color);
+
                 col++;
             }
 
@@ -357,6 +472,8 @@ void Board::init(std::string s)
                 color = (c == 'N') ? Color::white : Color::black;
                 board[row][col] = new Piece(color, Piecetype::knight, Square(row,col));
                 blankPieceStack.push_back(new Piece(Color::clear, Piecetype::none ,Square(row,col)));
+                set_bitboard_piece(row,col,Piecetype::knight, color);
+
                 col++;
             }
 
@@ -364,6 +481,7 @@ void Board::init(std::string s)
                 color = (c == 'B') ? Color::white : Color::black;
                 board[row][col] = new Piece(color, Piecetype::bishop, Square(row,col));
                 blankPieceStack.push_back(new Piece(Color::clear, Piecetype::none ,Square(row,col)));
+                set_bitboard_piece(row,col,Piecetype::bishop, color);
                 col++;
             }
 
@@ -371,12 +489,15 @@ void Board::init(std::string s)
                 color = (c == 'Q') ? Color::white : Color::black; 
                 board[row][col] = new Piece(color, Piecetype::queen, Square(row,col));
                 blankPieceStack.push_back(new Piece(Color::clear, Piecetype::none ,Square(row,col)));
+                set_bitboard_piece(row,col,Piecetype::queen, color);
+
                 col++;
             }
             else if(c == 'P' || c == 'p'){
                 color = (c == 'P') ? Color::white : Color::black;
                 board[row][col] = new Piece(color, Piecetype::pawn, Square(row,col));
                 blankPieceStack.push_back(new Piece(Color::clear, Piecetype::none ,Square(row,col)));
+                set_bitboard_piece(row,col,Piecetype::pawn, color);
                 col++;
             }
             else{
@@ -565,6 +686,13 @@ bool Board::do_uci_move(std::string s)
 bool Board::do_move(Move move)
 {   
     this->n_do_move++;
+    //std::cout << "start do move"<< std::endl;
+    //std::cout << get_bitboard_piece(4,2,Piecetype::pawn, Color::white) << std::endl;
+    //std::cout << std::bitset<64>(this->bitboard_piece_white[Piecetype::pawn] & ((0x8000000000000000LL >> (4*8 + 2)))) << std::endl;
+    //std::cout << std::bitset<64>(this->bitboard_piece_white[Piecetype::pawn]) << std::endl;
+    //move.print_move();
+    //std::cout << print_board() << std::endl;
+    this->n_do_move++;
     
     this->ply++;
     
@@ -574,8 +702,6 @@ bool Board::do_move(Move move)
             board[move.end_square.row][move.end_square.column] = board[move.start_square.row][move.start_square.column];
             board[move.start_square.row][move.start_square.column] = blankPieceStack.back();
             blankPieceStack.pop_back();
-            board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
-            board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
         }
         else{
             Piece* t = board[move.end_square.row][move.end_square.column];
@@ -605,6 +731,9 @@ bool Board::do_move(Move move)
             this->captureStack.push_back(board[move.end_square.row-1][move.end_square.column]);
             board[move.end_square.row-1][move.end_square.column] = blankPieceStack.back();
             blankPieceStack.pop_back();
+            unset_bitboard_piece(move.end_square.row-1, move.end_square.column, move.moved_piece, move.color_moved_piece);
+
+
             board[move.end_square.row-1][move.end_square.column]->square.row = move.end_square.row-1;
             board[move.end_square.row-1][move.end_square.column]->square.column = move.end_square.column;
         }
@@ -612,18 +741,16 @@ bool Board::do_move(Move move)
             this->captureStack.push_back(board[move.end_square.row+1][move.end_square.column]);
             board[move.end_square.row+1][move.end_square.column] = blankPieceStack.back();
             blankPieceStack.pop_back();
+            unset_bitboard_piece(move.end_square.row+1, move.end_square.column, move.moved_piece, move.color_moved_piece);
+
+
             board[move.end_square.row+1][move.end_square.column]->square.row = move.end_square.row+1;
             board[move.end_square.row+1][move.end_square.column]->square.column = move.end_square.column;       
         }
     }
 
 
-    if(this->color_to_move == Color::black){
-        this->color_to_move = Color::white;
-    }
-    else{
-        this->color_to_move = Color::black;
-    }
+    
 
     if(move.moved_piece == Piecetype::rook){
         if(move.color_moved_piece == Color::white){
@@ -652,10 +779,10 @@ bool Board::do_move(Move move)
         }
     }
     if(move.moved_piece == Piecetype::king){
-        if(move.color_moved_piece == Color::white){
+        if(move.color_moved_piece == Color::white && ply_white_king_moved == -1){
             ply_white_king_moved = ply;
         }
-        else{
+        else if(move.color_moved_piece == Color::black && ply_black_king_moved == -1) {
             ply_black_king_moved = ply;
         }
     }
@@ -684,6 +811,16 @@ bool Board::do_move(Move move)
             Piece* r = board[move.end_square.row][7];
             board[move.end_square.row][7] = board[move.end_square.row][5];
             board[move.end_square.row][5] = r;
+
+
+            unset_bitboard_piece(move.end_square.row,7, Piecetype::rook, move.color_moved_piece); //unset rook
+            unset_bitboard_piece(move.start_square.row,move.start_square.column, move.moved_piece, move.color_moved_piece);    
+
+
+            set_bitboard_piece(move.end_square.row, 5, Piecetype::rook, move.color_moved_piece);    
+            
+            set_bitboard_piece(move.end_square.row, move.end_square.column, move.moved_piece, move.color_moved_piece);    
+
             if(move.color_moved_piece == Color::white){
                 ply_white_h_rook_moved = ply;
                 ply_white_king_moved = ply;
@@ -699,6 +836,16 @@ bool Board::do_move(Move move)
             Piece* r = board[move.end_square.row][0];
             board[move.end_square.row][0] = board[move.end_square.row][3];
             board[move.end_square.row][3] = r;
+
+            unset_bitboard_piece(move.end_square.row,0, Piecetype::rook, move.color_moved_piece);    
+
+            unset_bitboard_piece(move.start_square.row,move.start_square.column, Piecetype::king, move.color_moved_piece);    
+
+            set_bitboard_piece(move.end_square.row, 3, Piecetype::rook, move.color_moved_piece);    
+
+            set_bitboard_piece(move.end_square.row, move.end_square.column, Piecetype::king, move.color_moved_piece);    
+
+
             if(move.color_moved_piece == Color::white){
                 ply_white_a_rook_moved = ply;
                 ply_white_king_moved = ply;
@@ -713,12 +860,27 @@ bool Board::do_move(Move move)
         
         
     }
+    else{
+        update_bitboard(&move);
+
+    }
 
     board[move.end_square.row][move.end_square.column]->square.row = move.end_square.row;
     board[move.end_square.row][move.end_square.column]->square.column = move.end_square.column;
     
+    if(this->color_to_move == Color::black){
+        this->color_to_move = Color::white;
+    }
+    else{
+        this->color_to_move = Color::black;
+    }
     
-    
+//std::cout << "end do move"<< std::endl;
+    //std::cout << get_bitboard_piece(4,2,Piecetype::pawn, Color::white) << std::endl;
+    //std::cout << std::bitset<64>(this->bitboard_piece_white[Piecetype::pawn] & ((0x8000000000000000LL >> (4*8 + 2)))) << std::endl;
+    //std::cout << std::bitset<64>(this->bitboard_piece_white[Piecetype::pawn]) << std::endl;
+    //move.print_move();
+    //std::cout << print_board() << std::endl;
     return true;
 }
 
@@ -739,18 +901,21 @@ bool Board::do_nullmove()
 bool Board::undo_move(Move move)
 {
     this->n_undo_move++;
-    if(this->color_to_move == Color::black){
-        this->color_to_move = Color::white;
-    }
-    else{
-        this->color_to_move = Color::black;
-    }
+    //std::cout << "start undo"<< std::endl;
+    //std::cout << get_bitboard_piece(4,2,Piecetype::pawn, Color::white) << std::endl;
+    //std::cout << std::bitset<64>(this->bitboard_piece_white[Piecetype::pawn] & ((0x8000000000000000LL >> (4*8 + 2)))) << std::endl;
+    //std::cout << std::bitset<64>(this->bitboard_piece_white[Piecetype::pawn]) << std::endl;
+    //move.print_move();
+    //std::cout << print_board() << std::endl;
     if(!move.is_en_passant){
         if(move.is_capture){
             this->blankPieceStack.push_back(board[move.start_square.row][move.start_square.column]);
             board[move.start_square.row][move.start_square.column] = board[move.end_square.row][move.end_square.column];
             board[move.end_square.row][move.end_square.column] = this->captureStack.back();
             this->captureStack.pop_back();
+            board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
+            board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
+        
         }
         else{
             Piece* t = board[move.end_square.row][move.end_square.column];
@@ -780,11 +945,13 @@ bool Board::undo_move(Move move)
                 this->blankPieceStack.push_back(board[move.end_square.row-1][move.end_square.column]);
                 board[move.end_square.row-1][move.end_square.column] = this->captureStack.back();
                 this->captureStack.pop_back();
+                set_bitboard_piece(move.end_square.row-1, move.end_square.column, move.moved_piece, move.color_moved_piece);
             }
             else{ 
                 this->blankPieceStack.push_back(board[move.end_square.row+1][move.end_square.column]);
                 board[move.end_square.row+1][move.end_square.column] = this->captureStack.back();
                 this->captureStack.pop_back();
+                set_bitboard_piece(move.end_square.row+1, move.end_square.column, move.moved_piece, move.color_moved_piece);
             }
         
             
@@ -802,11 +969,26 @@ bool Board::undo_move(Move move)
             Piece* r = board[move.end_square.row][5];
             board[move.end_square.row][5] = board[move.end_square.row][7];
             board[move.end_square.row][7] = r;
+            set_bitboard_piece(move.end_square.row,7, Piecetype::rook, move.color_moved_piece);    
+
+            set_bitboard_piece(move.start_square.row,move.start_square.column, Piecetype::king, move.color_moved_piece);    
+
+
+            unset_bitboard_piece(move.end_square.row, 5, Piecetype::rook, move.color_moved_piece);    
+            
+            unset_bitboard_piece(move.end_square.row, move.end_square.column, Piecetype::king, move.color_moved_piece);
         }
         else{
             Piece* r = board[move.end_square.row][3];
             board[move.end_square.row][3] = board[move.end_square.row][0];
             board[move.end_square.row][0] = r;
+            set_bitboard_piece(move.end_square.row,0, Piecetype::rook, move.color_moved_piece);    
+
+            set_bitboard_piece(move.start_square.row,move.start_square.column, Piecetype::king, move.color_moved_piece);    
+
+            unset_bitboard_piece(move.end_square.row, 3, Piecetype::rook, move.color_moved_piece);    
+
+            unset_bitboard_piece(move.end_square.row, move.end_square.column, Piecetype::king, move.color_moved_piece);
         }
         if(move.color_moved_piece == Color::white){
             is_white_castled = false;
@@ -814,6 +996,10 @@ bool Board::undo_move(Move move)
         else{
             is_black_castled = false;
         }
+
+    }
+    else if (!move.is_en_passant){
+        update_bitboard_undo(&move);
     }
     if(ply_white_king_moved == ply){
         ply_white_king_moved = -1;
@@ -833,13 +1019,20 @@ bool Board::undo_move(Move move)
     if(ply_black_h_rook_moved == ply){
         ply_black_h_rook_moved = -1;
     }
-
+    
     en_passant_squares.pop_back();
     board[move.start_square.row][move.start_square.column]->square.row = move.start_square.row;
     board[move.start_square.row][move.start_square.column]->square.column = move.start_square.column;
 
+    if(this->color_to_move == Color::black){
+        this->color_to_move = Color::white;
+    }
+    else{
+        this->color_to_move = Color::black;
+    }
 
     this->ply--;
+    
     return true;
 }
 
@@ -1499,15 +1692,15 @@ void Board::generate_possible_squares(int row, int column){
 }
 
 std::vector<Move> *Board::allMoves(std::vector<Move> *allMovesList){
-    std::string fen = this->get_fen();
-    allmoves_fen_map[fen] += 1;
+    //std::string fen = this->get_fen();
+    //allmoves_fen_map[fen] += 1;
     
-    if(allmoves_map.count(fen)!=0){
+    /*if(allmoves_map.count(fen)!=0){
         allMovesList = allmoves_map[fen];
         return allMovesList;
-    }
-    
-    allMovesList = new std::vector<Move>;
+    }*/
+   
+    allMovesList->clear();
     allMovesList->reserve(32);
     
     for(int row = 0; row < 8; row++){

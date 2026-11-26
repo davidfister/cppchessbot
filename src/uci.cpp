@@ -44,8 +44,24 @@ int uci(int depth){
         }
         else if (uci_input.substr(0, 2) == "go") {
             Move m = engine.find_best_move_minimax(depth);
+            std::cout << "Bitboard before move:"<< std::endl;
+            board.print_bitboard();
             std::cout << "bestmove " <<  m.to_string() << std::endl;
             board.do_move(m);
+            std::cout << "Board after move:"<< std::endl;
+            board.print_bitboard();
+            std::cout <<board.print_board()<< std::endl;
+            std::cout << "Eval: " << engine.evaluate_minimax(0) << std::endl;
+            std::cout << "Ply: " << board.ply << std::endl;
+            std::cout << "Ply AR: " << board.ply_black_a_rook_moved << std::endl;
+            std::cout << "Ply HR: " << board.ply_black_h_rook_moved << std::endl;
+            std::cout << "Ply K: " << board.ply_black_king_moved << std::endl;
+
+
+
+
+
+            
         }   
 
 
